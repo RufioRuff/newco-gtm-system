@@ -1,0 +1,8 @@
+ticker,name,type,market_cap,nav,premium_discount,expense_ratio,liquidity_terms,strategy,notes
+PSTH,Pershing Square Tontine Holdings,SPAC/Permanent Capital,4000,4200,-4.8,N/A,Liquidating,Permanent capital vehicle,
+HTGC,Hercules Capital,BDC - Venture Lending,1500,1550,-3.2,1.75,Quarterly,Venture debt BDC,
+MAIN,Main Street Capital,BDC - Private Equity,3200,3100,3.2,2.25,Monthly,Lower middle market BDC,
+TPVG,TriplePoint Venture Growth,BDC - Venture Lending,800,850,-5.9,2.1,Quarterly,Venture debt,
+3IN,3i Group (LSE),Listed PE,15000,14500,3.4,1.2,Semi-annual,UK listed PE,LSE listed
+PTMN,Portman Ridge Finance,BDC,250,275,-9.1,3.5,Quarterly,Opportunistic credit,
+VCFND,Vintage Capital Fund (hypothetical),VC Fund-of-Funds,500,550,-9.1,1.5,Quarterly,Similar strategy,Hypothetical

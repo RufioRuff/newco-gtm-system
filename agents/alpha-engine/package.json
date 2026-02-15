@@ -1,0 +1,50 @@
+{
+  "name": "newco-platform",
+  "version": "10.0.0",
+  "private": true,
+  "description": "NEWCO V10 — Intelligence LP Platform for Evil Twin Capital",
+  "author": "Evil Twin Capital",
+  "license": "UNLICENSED",
+  "workspaces": {
+    "packages": [
+      "api",
+      "web"
+    ]
+  },
+  "devDependencies": {
+    "@redwoodjs/cli": "^8.9.0",
+    "@redwoodjs/core": "^8.0.0"
+  },
+  "eslintConfig": {
+    "extends": "@redwoodjs/eslint-config",
+    "root": true
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "yarn": ">=4.0.0"
+  },
+  "scripts": {
+    "dev": "rw dev",
+    "build": "rw build",
+    "test": "rw test",
+    "lint": "rw lint",
+    "check": "rw type-check",
+    "deploy": "vercel --prod",
+    "db:migrate": "rw prisma migrate dev",
+    "db:seed": "rw prisma db seed"
+  },
+  "dependencies": {
+    "@redwoodjs/api": "^8.0.0",
+    "@redwoodjs/auth-supabase-api": "^8.0.0",
+    "@redwoodjs/auth-supabase-web": "^8.0.0",
+    "@redwoodjs/forms": "^8.0.0",
+    "@redwoodjs/router": "^8.0.0",
+    "@redwoodjs/web": "^8.0.0",
+    "@supabase/supabase-js": "^2.95.3",
+    "d3": "^7.9.0",
+    "lucide-react": "^0.263.1",
+    "node-fetch": "^3.3.2",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  }
+}

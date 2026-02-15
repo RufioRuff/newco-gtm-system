@@ -1,0 +1,9 @@
+contact_id,manager_id,manager_name,contact_date,contact_type,subject,outcome,next_steps,notes
+MC00001,M001,8VC,2026-02-13,Pipeline Review,Q1 2026 portfolio company updates,"Reviewed 3 defense tech investments, identified 1 co-invest opportunity",Schedule follow-up on Epirus Series B,
+MC00002,M002,Chapter One,2026-02-13,Quarterly Update,Fund performance review and pipeline,"Mercury performing well, 2 new seed investments in AI infra",Evaluate co-invest in Together.ai Series A,
+MC00003,M003,New Normal Fund (Allison Pickens),2026-02-13,Call,GTM/ARR discipline layer discussion,Reviewed 5 portfolio companies with strong revenue metrics,Schedule IC presentation for Q2,
+MC00004,M004,Swift Ventures,2026-02-13,Meeting,Enterprise SaaS pipeline and co-invest opportunities,Discussed 3 Series A companies with strong traction,Share data room access for Arize follow-on,
+MC00005,M005,Caffeinated Capital,2026-02-13,Pipeline Review,AI-first founders seed pipeline,"High-velocity seed pipeline, 10 new investments YTD",Bi-weekly co-invest review cadence,
+MC00006,M006,Quiet Capital,2026-02-13,Quarterly Update,Multi-sector optionality satellite review,"Broad diversification across sectors, lowest correlation profile",Continue quarterly reviews,
+MC00007,M007,Marathon Management,2026-02-13,Call,Enterprise/fintech compounder opportunities,Reviewed DPI velocity and scaling discipline,Evaluate co-invest in fintech Series B,
+MC00008,M008,Gilroy (Ex-Coatue GP),2026-02-13,Meeting,Embedded finance bridge opportunities,"Mercury, Arta, Melio performing well. Late seed → growth sweet spot",Co-invest in next embedded fintech round,

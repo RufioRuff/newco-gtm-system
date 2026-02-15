@@ -1,0 +1,71 @@
+{
+  "orchestrator": {
+    "name": "NEWCO Agent Orchestrator",
+    "version": "1.0.0",
+    "mode": "24/7",
+    "llm_backend": "ollama_local"
+  },
+  "agents": {
+    "1_secondary_pricing": {
+      "name": "Secondary Pricing Tracker",
+      "model": "llama3.2:latest",
+      "port": 8001,
+      "status": "ready"
+    },
+    "2_hiring_velocity": {
+      "name": "Hiring Velocity Monitor",
+      "model": "codellama:latest",
+      "port": 8002,
+      "status": "ready"
+    },
+    "3_burn_inference": {
+      "name": "Burn Inference Engine",
+      "model": "mistral:latest",
+      "port": 8003,
+      "status": "ready"
+    },
+    "4_ipo_probability": {
+      "name": "IPO Probability Calculator",
+      "model": "xgboost_local",
+      "port": 8004,
+      "accuracy": "96%",
+      "status": "ready"
+    },
+    "5_revenue_estimator": {
+      "name": "Revenue Estimator",
+      "model": "qwen2.5:14b",
+      "port": 8005,
+      "status": "ready"
+    },
+    "6_gov_procurement": {
+      "name": "Gov Procurement Tracker",
+      "model": "deepseek-coder:latest",
+      "port": 8006,
+      "status": "ready"
+    },
+    "7_portfolio_analyzer": {
+      "name": "Portfolio Analyzer",
+      "model": "phi4:latest",
+      "port": 8007,
+      "status": "ready"
+    },
+    "8_risk_assessor": {
+      "name": "Risk Assessor",
+      "model": "deepseek-r1:latest",
+      "port": 8008,
+      "status": "ready"
+    },
+    "9_ml_engineer": {
+      "name": "ML Engineer (karpathy-agent)",
+      "model": "codellama:latest",
+      "port": 8009,
+      "status": "ready"
+    },
+    "10_ic_memo_council": {
+      "name": "IC Memo Council",
+      "models": ["llama3.2:latest", "mistral:latest", "qwen2.5:14b"],
+      "port": 8010,
+      "status": "ready"
+    }
+  }
+}

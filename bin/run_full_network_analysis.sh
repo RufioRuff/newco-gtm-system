@@ -1,0 +1,1 @@
+../core/scripts/run_full_network_analysis.sh

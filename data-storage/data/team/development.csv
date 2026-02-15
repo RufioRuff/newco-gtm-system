@@ -1,0 +1,7 @@
+dev_id,member_id,activity_type,activity_date,description,hours,competency,notes
+DEV00001,TM002,Training,2026-02-13,NVCA PE/VC Fundamentals Course,20,VC Fundamentals,
+DEV00002,TM002,Conference,2026-02-13,Attended Emerging Manager Summit,16,Industry Knowledge,
+DEV00003,TM003,Training,2026-02-13,Financial Modeling for VC,15,Financial Analysis,
+DEV00004,TM003,Mentorship,2026-02-13,Weekly sessions with Sarah Chen,10,Due Diligence,
+DEV00005,TM004,Onboarding,2026-02-13,NEWCO new hire training,40,Company Knowledge,
+DEV00006,TM004,Training,2026-02-13,Pitchbook platform training,8,Research Tools,

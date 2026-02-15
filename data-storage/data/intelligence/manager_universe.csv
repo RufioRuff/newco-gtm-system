@@ -1,0 +1,9 @@
+manager_id,firm_name,fund_name,fund_size,vintage,stage_focus,sector_focus,geography,lead_gp,gp_background,fundraising_status,close_date,min_check,max_check,strategy_description,competitive_positioning,our_status,notes
+UNIV0001,Operator Collective,Operator Collective Fund II,150000000,2024,Seed/Series A,Enterprise SaaS,US,Mallun Yen,,Closed,,,,,,Passed,
+UNIV0002,Character VC,Character Fund II,60000000,2024,Pre-seed/Seed,Consumer,US,Masha Drokova,,Open,,,,,,Screening,
+UNIV0003,Kindred Ventures,Kindred Fund III,100000000,2024,Seed,Consumer Tech,US,Kanyi Maqubela,,Open,,,,,,Deep DD,
+UNIV0004,Contrary,Contrary Fund IV,250000000,2025,Seed/Series A,Multi-sector,US,Eric Tarczynski,,First Close,,,,,,Tracking,
+UNIV0005,Equal Ventures,Equal Fund III,75000000,2024,Seed,Vertical SaaS,US,Rick Zullo,,Closed,,,,,,Committed,
+UNIV0006,Playground Global,Playground Fund III,200000000,2024,Seed/Series A,Deep Tech,US,Bruce Leak,,Open,,,,,,Tracking,
+UNIV0007,Backstage Capital,Backstage Fund III,50000000,2024,Pre-seed/Seed,Diverse Founders,US,Arlan Hamilton,,Open,,,,,,Tracking,
+UNIV0008,Underscore VC,Underscore Fund IV,125000000,2024,Seed/Series A,Enterprise,US,Michael Skok,,Open,,,,,,Screening,

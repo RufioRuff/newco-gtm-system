@@ -1,0 +1,7 @@
+event_id,event_type,scheduled_date,due_date,status,owner,description,completed_date,notes
+GE0001,IC Meeting,2026-02-27,2026-02-27,Scheduled,Ken Wallace,Bi-weekly IC meeting - Manager updates,,
+GE0002,IC Meeting,2026-03-13,2026-03-13,Scheduled,Ken Wallace,Bi-weekly IC meeting - Co-invest approvals,,
+GE0003,Quarterly IC Log,2026-03-30,2026-03-30,Scheduled,Sarah Chen,Q1 2026 IC activity log (per Slide 11 governance reporting),,
+GE0004,Valuation Committee,2026-04-14,2026-04-14,Scheduled,Independent Chair,Quarterly fair value determinations,,
+GE0005,Board Meeting,2026-04-29,2026-04-29,Scheduled,Ken Wallace,Quarterly Board of Directors meeting,,
+GE0006,Semi-Annual Minutes,2026-07-13,2026-07-13,Scheduled,Sarah Chen,Semi-annual audited financials and governance minutes,,

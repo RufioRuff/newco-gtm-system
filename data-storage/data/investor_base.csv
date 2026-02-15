@@ -1,0 +1,11 @@
+investor_id,name,type,shares,percent_ownership,classification,contact_id,date_acquired,cost_basis,notes
+1,Vanguard Group,Institutional,1250000,12.5,Institutional,,2024-01-15,19.5,Index fund holdings
+2,BlackRock,Institutional,980000,9.8,Institutional,,2024-02-01,18.75,Active + index
+3,State Street,Institutional,650000,6.5,Institutional,,2024-01-20,19.25,Index holdings
+4,Wellington Management,Institutional,420000,4.2,Institutional,,2024-03-10,18.5,Active manager
+5,Retail Shareholders,Retail,3200000,32.0,Retail,,Various,18.8,Individual investors
+6,"Management (CEO, CFO)",Insiders,850000,8.5,Insiders,,2023-06-01,17.0,Founder shares + options
+7,Board of Directors,Insiders,180000,1.8,Insiders,,2023-06-01,17.0,Board compensation
+8,Strategic LP (CalPERS),Strategic,450000,4.5,Strategic,3,2024-01-15,19.0,Also invests in fund
+9,Strategic LP (Yale Endowment),Strategic,320000,3.2,Strategic,5,2024-02-20,18.9,Also LP in fund
+10,Activist Fund (Saba Capital),Activists,280000,2.8,Activists,,2024-11-15,17.5,Discount arbitrage

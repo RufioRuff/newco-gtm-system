@@ -1,0 +1,6 @@
+manager_id,fund_name,gp_names,firm_name,stage_focus,sector_focus,geography,aum,fund_size,vintage_year,pipeline_stage,source,last_contact,next_action,priority,notes
+M001,Zeta Ventures Fund I,"Jane Smith, John Doe",Zeta Ventures,Seed,Climate Tech,US,,,,Sourced,VC Partner Referral,2026-02-13,,Medium,
+M002,Theta Capital Fund II,"Alice Wong, Bob Chen",Theta Capital,Series A,Enterprise SaaS,US,,,,Screening,Platform Referral,2026-02-13,,Medium,
+M003,Iota Seed Fund III,"Maria Garcia, Tom Wilson",Iota Partners,Seed/A,Biotech,US,,,,Deep DD,Conference,2026-02-13,,Medium, | DD started by Senior Analyst
+M004,Kappa Growth Fund I,Sarah Lee,Kappa Capital,Growth,Consumer,US,,,,IC Review,VC Partner Referral,2026-02-13,,Medium,
+M005,Lambda Ventures Fund IV,"Michael Brown, Lisa Taylor",Lambda Ventures,Seed,AI/ML,US,,,,Sourced,Inbound,2026-02-13,,Medium,

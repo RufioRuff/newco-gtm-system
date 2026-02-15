@@ -1,0 +1,42 @@
+{
+  "deployment_rates": {
+    "year_1": 0.3,
+    "year_2": 0.36,
+    "year_3": 0.24,
+    "year_4_plus": 0.1
+  },
+  "distribution_timing": {
+    "years_to_first_distribution": 3,
+    "distribution_acceleration": 0.15
+  },
+  "management_fees": {
+    "fee_rate": 0.0125,
+    "on_commitment": true
+  },
+  "operating_expenses": {
+    "annual_base": 500000,
+    "per_fund": 50000,
+    "inflation": 0.03
+  },
+  "scenarios": {
+    "bull": {
+      "multiple_markup": 1.5,
+      "distribution_acceleration": 1.3,
+      "new_commitments_per_year": 4
+    },
+    "base": {
+      "multiple_markup": 1.0,
+      "distribution_acceleration": 1.0,
+      "new_commitments_per_year": 3
+    },
+    "bear": {
+      "multiple_markup": 0.7,
+      "distribution_acceleration": 0.7,
+      "new_commitments_per_year": 2
+    }
+  },
+  "new_commitments": {
+    "avg_commitment_size": 3000000,
+    "commitments_per_year": 3
+  }
+}

@@ -1,0 +1,6 @@
+id,name,company,title,category,tier,linkedin_url,email,phone,status,last_contact,next_action,next_action_date,priority_score,notes,tags
+1,Bob Burlinson,Omniscient,CEO,Network Multiplier,0,,,,Initial Outreach Sent,2026-02-13,,,50,"Top connector - Goldman intros, platform strategy",
+2,Alistair Savides,Hamilton Lane,Managing Director,Platform Gatekeeper,1,,,,Meeting Scheduled,2026-02-13,Prepare platform pitch,2026-02-20,50,Educational meeting on emerging managers,
+3,Marie Young,Threshold Family Office,CIO,Family Office CIO,2,,,,Cold,,,,50,"Focus on liquid VC access, fee transparency",
+4,Sample VC Partner,Sample Ventures,Partner,VC Partner,3,,,,Cold,,,,50,"LP intro pathway, co-investment interest",
+5,Jessica Mancini,Barr Foundation,Investment Director,Foundation Leader,3,,,,Cold,,,,50,"Mission-aligned vehicle, emerging manager diversity",

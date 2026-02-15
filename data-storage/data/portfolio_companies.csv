@@ -1,0 +1,63 @@
+company_id,company_name,fund_id,fund_name,gp_name,sector,stage,status,investment_date,exit_date,exit_type,valuation_estimate,description
+PC001,Smartsheet,F028,Vista Equity Partners VII LP,Vista Equity Partners,Business/Productivity Software,Growth,Active,2020,,,,Enterprise work management platform
+PC002,SimplePractice,F028,Vista Equity Partners VII LP,Vista Equity Partners,Healthcare,Growth,Active,2020,,,,Practice management software for healthcare providers
+PC003,Cloud Software Group,F029,Vista Equity Partners VIII LP,Vista Equity Partners,Enterprise Software,Growth,Active,2022,,,,Cloud infrastructure and software solutions
+PC004,ABC Technologies,F002,Apollo Investment Fund IX LP,Apollo Global Management,Automotive,Mature,Active,2022,,,,Automotive parts manufacturing
+PC005,Great Canadian Entertainment,F002,Apollo Investment Fund IX LP,Apollo Global Management,Entertainment,Mature,Active,2019,,,,Casino and entertainment operations
+PC006,Vallourec,F002,Apollo Investment Fund IX LP,Apollo Global Management,Industrial,Mature,Active,2020,,,,Steel pipe manufacturing
+PC007,Goldbelly,F026,Spectrum Equity VIII-C LP,Spectrum Equity,Consumer,Growth,Active,2021,,,,Food delivery marketplace
+PC008,Empyrean Solutions,F026,Spectrum Equity VIII-C LP,Spectrum Equity,Software,Growth,Active,2019,,,,HR and benefits software
+PC009,Ease,F026,Spectrum Equity VIII-C LP,Spectrum Equity,Software,Growth,Active,2020,,,,Benefits enrollment platform
+PC010,Airbnb,F063,TCV XI (b) LP,Technology Crossover Ventures,Consumer,Public,Exited,2011,2020,IPO,120000000000,Short-term rental marketplace
+PC011,Netflix,F062,TCV X (B) LP,Technology Crossover Ventures,Media,Public,Exited,1999,2002,IPO,300000000000,Streaming entertainment platform
+PC012,Spotify,F063,TCV XI (b) LP,Technology Crossover Ventures,Media,Public,Exited,2015,2018,IPO,70000000000,Music streaming platform
+PC013,Facebook,F062,TCV X (B) LP,Technology Crossover Ventures,Social Media,Public,Exited,2010,2012,IPO,1200000000000,Social networking platform
+PC014,Zillow,F062,TCV X (B) LP,Technology Crossover Ventures,Real Estate,Public,Exited,2005,2011,IPO,12000000000,Real estate marketplace
+PC015,Nubank,F063,TCV XI (b) LP,Technology Crossover Ventures,Fintech,Public,Active,2018,2021,IPO,45000000000,Digital banking platform
+PC016,Revolut,F063,TCV XI (b) LP,Technology Crossover Ventures,Fintech,Late Stage,Active,2021,,,,Digital banking and payments
+PC017,GoFundMe,F063,TCV XI (b) LP,Technology Crossover Ventures,Fintech,Late Stage,Active,2015,,,,Crowdfunding platform
+PC018,Toast,F063,TCV XI (b) LP,Technology Crossover Ventures,Restaurant Tech,Public,Exited,2018,2021,IPO,15000000000,Restaurant POS and management
+PC019,Celonis,F063,TCV XI (b) LP,Technology Crossover Ventures,Enterprise Software,Late Stage,Active,2018,,,,Process mining and execution management
+PC020,Miro,F063,TCV XI (b) LP,Technology Crossover Ventures,Collaboration,Late Stage,Active,2019,,,,Visual collaboration platform
+PC021,Databricks,F048,New Enterprise Associates 14 LP,New Enterprise Associates,Data/AI,Late Stage,Active,2014,,,,Data lakehouse and AI platform
+PC022,Strive Health,F048,New Enterprise Associates 14 LP,New Enterprise Associates,Healthcare,Growth,Active,2019,,,,Kidney disease care management
+PC023,TAE Technologies,F048,New Enterprise Associates 14 LP,New Enterprise Associates,Energy,Growth,Active,2006,,,,Fusion energy technology
+PC024,Varda Space Industries,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Space Tech,Growth,Active,2024,,90000000,In-space manufacturing
+PC025,BioAge Labs,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Life Sciences,Public,Exited,2022,2024,IPO,615000000,Aging biology therapeutics
+PC026,Bitwise,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Fintech,Public,Exited,2023,2024,IPO,,Cryptocurrency index funds
+PC027,Rainbow,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Insurtech,Seed,Active,2024,,12000000,Small business insurance
+PC028,Mercury,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Fintech,Late Stage,Active,2018,,,,Banking for startups
+PC029,Cult.fit,F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,Health & Fitness,Growth,Active,2020,,,,Health and fitness platform
+PC030,JustiFi,F057,Rally Ventures Fund IV LP,Rally Ventures,Fintech,Growth,Active,2021,,,,Embedded payments for vertical SaaS
+PC031,Vertical Insure,F057,Rally Ventures Fund IV LP,Rally Ventures,Insurtech,Growth,Active,2022,,,,Embedded insurance for vertical SaaS
+PC032,Yardstik,F057,Rally Ventures Fund IV LP,Rally Ventures,HR Tech,Growth,Active,2020,,,,Background screening platform
+PC033,Coupa,F057,Rally Ventures Fund IV LP,Rally Ventures,Enterprise Software,Public,Exited,2013,2016,IPO,8000000000,Business spend management
+PC034,Harness,F057,Rally Ventures Fund IV LP,Rally Ventures,DevOps,Late Stage,Active,2019,,,,Software delivery platform
+PC035,UiPath,F058,Rally Ventures Fund V LP,Rally Ventures,RPA,Public,Exited,2017,2021,IPO,14000000000,Robotic process automation
+PC036,MoonPay,F055,Quiet Venture III LP,Quiet Capital,Fintech,Late Stage,Active,2021,,,,Cryptocurrency payments infrastructure
+PC037,DuckDuckGo,F055,Quiet Venture III LP,Quiet Capital,Search,Growth,Active,2014,,,,Privacy-focused search engine
+PC038,Reddit,F055,Quiet Venture III LP,Quiet Capital,Social Media,Public,Exited,2014,2024,IPO,12000000000,Social news and discussion platform
+PC039,Substack,F055,Quiet Venture III LP,Quiet Capital,Media,Growth,Active,2019,,,,Newsletter publishing platform
+PC040,Modern Treasury,F055,Quiet Venture III LP,Quiet Capital,Fintech,Growth,Active,2020,,,,Payment operations platform
+PC041,11x,F055,Quiet Venture III LP,Quiet Capital,AI/ML,Early Stage,Active,2024,,,,AI-powered sales automation
+PC042,Magic,F055,Quiet Venture III LP,Quiet Capital,AI/ML,Growth,Active,2022,,,,AI agent platform
+PC043,Casetext,F059,Susa Ventures V LP,Susa Ventures,Legal Tech,Growth,Exited,2016,2023,Acquisition,650000000,AI legal research platform (acquired by Thomson Reuters)
+PC044,Cluely,F059,Susa Ventures V LP,Susa Ventures,Sales Tech,Early Stage,Active,2023,,,,AI assistant for virtual meetings
+PC045,Expanse,F059,Susa Ventures V LP,Susa Ventures,Cybersecurity,Growth,Exited,2015,2020,Acquisition,800000000,Attack surface management (acquired by Palo Alto Networks)
+PC046,FutureClinic,F059,Susa Ventures V LP,Susa Ventures,Healthcare,Early Stage,Active,2024,,,,AI-powered virtual clinic
+PC047,Supermemory,F059,Susa Ventures V LP,Susa Ventures,Productivity,Seed,Active,2024,,,,AI memory assistant
+PC048,Aembit,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2022,,,,Workload identity and access management
+PC049,Alethea,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2021,,,,AI-powered threat detection
+PC050,ArmorCode,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2020,,,,Application security posture management
+PC051,Concentric AI,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2021,,,,Data security and classification
+PC052,Nudge Security,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2022,,,,SaaS security management
+PC053,Oligo Security,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Early Stage,Active,2023,,,,Application security
+PC054,Pangea,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2022,,,,Security API platform
+PC055,Talon,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2021,,,,Enterprise browser security
+PC056,Veza,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2020,,,,Identity and access governance
+PC057,SpecterOps,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Growth,Active,2017,,,,Adversary resilience platform
+PC058,Reach Security,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Early Stage,Active,2023,,,,Security operations
+PC059,Noma,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Early Stage,Active,2024,,,,Security automation
+PC060,Root Evidence,F032,Ballistic Ventures II LP,Ballistic Ventures,Cybersecurity,Early Stage,Active,2024,,,,Digital forensics
+PC061,Generate Capital,F078,Generate Capital Inc (Direct),Direct Investment,Climate Infrastructure,Late Stage,Active,2023,,5000000000,Sustainable infrastructure investment
+PC062,Blend Financial,F073,Blend Financial Inc (Direct),Blend Labs,Fintech,Public,Active,2021,2021,IPO,4000000000,Digital lending platform

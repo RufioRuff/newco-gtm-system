@@ -1,0 +1,71 @@
+# NEWCO GTM Management System Configuration
+
+system:
+  version: "1.0.0"
+  data_dir: "data"
+  templates_dir: "templates"
+  reports_dir: "reports"
+
+database:
+  contacts_file: "data/contacts.csv"
+  interactions_file: "data/interactions.csv"
+  pipeline_file: "data/pipeline.csv"
+  targets_file: "data/targets.csv"
+
+pipeline:
+  statuses:
+    - Cold
+    - Warm Intro Requested
+    - Warm Intro Received
+    - Initial Outreach Sent
+    - Meeting Scheduled
+    - Meeting Completed
+    - Follow-up Sent
+    - Active Conversation
+    - Committed/Closed
+    - Not Interested
+    - Future Follow-up
+
+tiers:
+  0: "Network Multiplier"
+  1: "Platform Gatekeeper"
+  2: "Capital Allocator"
+  3: "Institutional Champion"
+  4: "Strategic Connector"
+
+categories:
+  - Platform Gatekeeper
+  - Family Office CIO
+  - VC Partner
+  - Foundation Leader
+  - Network Multiplier
+  - Strategic Connector
+
+# 90-Day Blitz Plan KPIs
+kpis:
+  weeks_1_2:
+    warm_intros_requested: 5
+    platform_meetings_target: 2
+  weeks_3_4:
+    meeting_requests_sent: 20
+    meetings_scheduled: 15
+  weeks_5_8:
+    active_conversations: 25
+    platform_convos: 4
+    lp_commits_soft: 2
+  weeks_9_12:
+    second_meetings: 10
+    commitments: 5
+    platform_closes: 2
+
+automation:
+  follow_up_days: 7
+  stale_threshold_days: 14
+  priority_recalc_days: 7
+
+email:
+  default_tone: "professional"
+  signature: |
+    Best regards,
+    [Your Name]
+    NEWCO

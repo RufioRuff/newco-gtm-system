@@ -1,0 +1,12 @@
+default_model: deepseek-r1
+max_tokens: 4096
+task_model_mapping:
+  competitive_intel: qwen2.5
+  due_diligence: deepseek-r1
+  email_generation: phi4
+  investment_analysis: deepseek-r1
+  market_research: qwen2.5
+  portfolio_analysis: qwen2.5
+  quick_summary: mistral
+  technical_analysis: deepseek-coder
+temperature: 0.7

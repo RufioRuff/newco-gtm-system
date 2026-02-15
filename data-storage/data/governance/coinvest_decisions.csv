@@ -1,0 +1,7 @@
+coinvest_id,company_name,manager_id,decision_date,tier,allocation_amount,nav_percentage,ic_vote,rationale,managers_participating,status,notes
+CI0001,Mercury (Embedded Finance),M001,2026-02-13,Conviction,25000000,12.0,Approved,"2+ managers (Chapter One, Gilroy), fintech leader, strong revenue growth","M001,M008",Active,
+CI0002,Supabase (Dev Tools),M001,2026-02-13,Confirmed,15000000,7.5,Approved,"2 managers, AI infra play, clean cap table","M001,M002",Active,
+CI0003,AI Infra Co (Seed),M005,2026-02-13,Base,7000000,3.5,Approved,"1 manager confirmed, early AI infrastructure",M005,Active,
+CI0004,Enterprise SaaS Co,M004,2026-02-13,Signal Density,3000000,1.5,Approved,"2+ manager interest, escalating to base tier","M004,M007",Active,
+CI0005,Consumer Tech Startup,M003,2026-02-13,Watchlist,0,0,Watchlist,"Backed by 1 manager, monitoring for signal convergence",M003,Declined,
+CI0006,Defense Tech Co,M001,2026-02-13,Confirmed,12000000,6.0,Approved,"Infrastructure + defense cluster, 8VC lead with Quiet participation","M001,M006",Active,

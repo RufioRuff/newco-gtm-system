@@ -1,0 +1,12 @@
+vote_id,ic_date,manager_id,member_id,vote,rationale,outcome,fund_performance,notes
+ICV00001,2025-11-15,M001,TM001,Yes,"Strong track record, clear differentiation",Approved,Good - 1.20x TVPI,
+ICV00002,2025-11-15,M001,TM002,Yes,Impressive portfolio construction,Approved,Good - 1.20x TVPI,
+ICV00003,2025-11-15,M002,TM001,Yes,"Established firm, good vintage timing",Approved,Good - 1.50x TVPI,
+ICV00004,2025-11-15,M002,TM002,Yes,Consumer expertise is valuable,Approved,Good - 1.50x TVPI,
+ICV00005,2025-11-15,M003,TM001,Yes,Growth stage diversification needed,Approved,Good - 1.20x TVPI,
+ICV00006,2025-11-15,M003,TM002,Abstain,Need more data on fintech exposure,Approved,Good - 1.20x TVPI,
+ICV00007,2025-11-15,M004,TM001,Yes,AI/ML thesis compelling,,,
+ICV00008,2025-11-15,M004,TM002,Yes,Strong GP backgrounds in AI,,,
+ICV00009,2025-11-15,M005,TM001,Yes,Healthcare is underweight in portfolio,Approved,Good - 1.67x TVPI,
+ICV00010,2025-11-15,M005,TM002,Yes,Best fund in pipeline,Approved,Good - 1.67x TVPI,
+ICV00011,2025-11-15,M005,TM003,Yes,Excellent reference checks,Approved,Good - 1.67x TVPI,

@@ -1,0 +1,86 @@
+fund_id,fund_name,gp_name,vintage,commitment_amount,total_called,total_distributed,current_nav,fund_type,sector,status
+F001,American Securities Partners VIII LP,American Securities,2022,5000000,3000000,500000,3500000,Private Equity,Multi-Sector,Active
+F002,Apollo Investment Fund IX LP,Apollo Global Management,2021,10000000,8000000,2000000,9000000,Private Equity,Credit,Active
+F003,Bay Hills Capital Partners I,Bay Hills Capital,2020,2000000,2000000,800000,2500000,Private Equity,Lower Middle Market,Mature
+F004,Bay Hills Capital Partners III,Bay Hills Capital,2022,3000000,1500000,200000,1800000,Private Equity,Lower Middle Market,Active
+F005,Bay Hills Capital Partners IV LP,Bay Hills Capital,2023,4000000,1200000,0,1300000,Private Equity,Lower Middle Market,Deploying
+F006,Bay Hills Capital Partners V LP,Bay Hills Capital,2024,5000000,1000000,0,1100000,Private Equity,Lower Middle Market,Deploying
+F007,Bay Hills Capital Partners VI LP,Bay Hills Capital,2025,6000000,500000,0,550000,Private Equity,Lower Middle Market,Deploying
+F008,Cerberus Series IV Holdings,Cerberus Capital,2021,8000000,6000000,1500000,7000000,Private Equity,Distressed,Active
+F009,Crestone,Crestone Partners,2023,3000000,1000000,0,1100000,Private Equity,Growth,Active
+F010,CV 2 - Kreatio LP (Casa Verde),Casa Verde Capital,2022,2500000,1500000,300000,1800000,Venture Capital,Cannabis,Active
+F011,DC Capital Partners IV-adj II,DC Capital,2023,4000000,2000000,200000,2300000,Private Equity,Middle Market,Active
+F012,Demeter Capital Group (Poseidon) LP,Demeter Capital,2022,3500000,2100000,400000,2500000,Private Equity,Agriculture,Active
+F013,FTV VII LP,FTV Capital,2023,7000000,3500000,500000,4000000,Growth Equity,Software,Active
+F014,Golden Gate Capital Opportunity Fund LP,Golden Gate Capital,2022,12000000,8000000,2000000,9500000,Private Equity,Multi-Sector,Active
+F015,Gryphon Heritage Partners LP,Gryphon Investors,2021,6000000,5000000,1200000,5800000,Private Equity,Middle Market,Active
+F016,HPS Special Situations Opportunity Fund LP,HPS Investment Partners,2022,8000000,5000000,800000,5700000,Private Credit,Special Situations,Active
+F017,Kinderhook Partners LP,Kinderhook Partners,2023,4000000,2000000,300000,2300000,Private Equity,Software,Active
+F018,Lobby Capital II LP,Lobby Capital,2024,3000000,800000,0,900000,Venture Capital,PropTech,Deploying
+F019,North Asia VIa Fund II,North Asia Partners,2022,5000000,3000000,600000,3500000,Private Equity,Asia,Active
+F020,Mainsail Partners VI LP,Mainsail Partners,2023,7000000,3500000,500000,4000000,Growth Equity,Software,Active
+F021,North American Actaeon IV LLC,Actaeon Capital,2022,4000000,2500000,400000,2900000,Private Equity,Energy,Active
+F022,New Mountain Partners III LP,New Mountain Capital,2021,15000000,12000000,3000000,14000000,Growth Equity,Multi-Sector,Active
+F023,Podul Asia VIII LP,Podul Capital,2023,6000000,3000000,500000,3500000,Private Equity,Asia,Active
+F024,Raven Asset BOP III,Raven Capital,2024,2500000,500000,0,550000,Private Equity,Secondaries,Deploying
+F025,Red Iron VL LLC,Red Iron Capital,2023,3000000,1500000,200000,1700000,Venture Capital,Deep Tech,Active
+F026,Spectrum Equity VIII-C LP,Spectrum Equity,2022,10000000,7000000,1500000,8000000,Growth Equity,Software,Active
+F027,Vector Capital IV,Vector Capital,2021,8000000,6500000,1800000,7500000,Private Equity,Technology,Active
+F028,Vista Equity Partners VII LP,Vista Equity Partners,2020,20000000,18000000,5000000,22000000,Private Equity,Software,Mature
+F029,Vista Equity Partners VIII LP,Vista Equity Partners,2022,25000000,15000000,2000000,17500000,Private Equity,Software,Active
+F030,Woolly Capital Partners I,Woolly Capital,2024,2000000,500000,0,550000,Venture Capital,Early Stage,Deploying
+F031,Allison Pickens Ventures Fund I LP,Allison Pickens (New Normal),2024,3000000,1000000,0,1100000,Venture Capital,SaaS,Deploying
+F032,Ballistic Ventures II LP,Ballistic Ventures,2023,5000000,2500000,300000,2800000,Venture Capital,Cybersecurity,Active
+F033,Caffeinated Capital Venture Fund V LP,Caffeinated Capital,2024,4000000,1500000,0,1650000,Venture Capital,AI/ML,Deploying
+F034,DxG Ventures II-GP LP,DxG Ventures,2023,2500000,1200000,150000,1350000,Venture Capital,Enterprise,Active
+F035,DxG Ventures III-GP LP,DxG Ventures,2024,3000000,800000,0,880000,Venture Capital,Enterprise,Deploying
+F036,Designer Fund I,Designer Fund,2022,1500000,1500000,400000,1800000,Venture Capital,Design Tools,Active
+F037,Designer Fund II,Designer Fund,2023,2000000,1000000,150000,1150000,Venture Capital,Design Tools,Active
+F038,Designer Fund III LP,Designer Fund,2024,2500000,600000,0,660000,Venture Capital,Design Tools,Deploying
+F039,Essence Fund II LP,Essence VC,2023,3000000,1500000,200000,1700000,Venture Capital,Consumer,Active
+F040,Euclid Venture Partners LP,Euclid Ventures,2024,2000000,500000,0,550000,Venture Capital,AI Safety,Deploying
+F041,Evergreen V LP,Evergreen Ventures,2022,4000000,2800000,600000,3200000,Venture Capital,Climate,Active
+F042,Firstime Ventures,Firstime Ventures,2024,1500000,400000,0,440000,Venture Capital,Pre-Seed,Deploying
+F043,FT Ventures III,FT Ventures,2023,2500000,1200000,150000,1350000,Venture Capital,Fintech,Active
+F044,HealthQuest Partners III LP,HealthQuest Capital,2022,6000000,4000000,800000,4500000,Venture Capital,Healthcare,Active
+F045,IGP Sub I LP,Industry Growth Partners,2023,3500000,1800000,250000,2050000,Growth Equity,Industrial Tech,Active
+F046,Marcy Venture Partners Fund II LP,Marcy Venture Partners,2023,5000000,2500000,300000,2800000,Venture Capital,Consumer,Active
+F047,NEA Ventures Partners I,New Enterprise Associates,2022,8000000,5500000,1000000,6200000,Venture Capital,Multi-Sector,Active
+F048,New Enterprise Associates 14 LP,New Enterprise Associates,2021,15000000,12000000,3000000,14000000,Venture Capital,Multi-Sector,Active
+F049,Next Coast Ventures I LP,Next Coast Ventures,2023,2500000,1200000,150000,1350000,Venture Capital,Climate,Active
+F050,Next Coast Ventures III LP,Next Coast Ventures,2024,3500000,1000000,0,1100000,Venture Capital,Climate,Deploying
+F051,Pontifax IV,Pontifax Global Food,2022,4000000,2500000,400000,2900000,Venture Capital,AgTech,Active
+F052,Post-Aro Management III (Cayman) LP,Post-Aro Management,2023,5000000,2500000,300000,2800000,Private Equity,Emerging Markets,Active
+F053,Powerlist I LP,Powerlist Capital,2024,2000000,500000,0,550000,Venture Capital,Creator Economy,Deploying
+F054,Shaaltiga (Sciences Inc),Shaaltiga Capital,2023,3000000,1500000,200000,1700000,Venture Capital,Life Sciences,Active
+F055,Quiet Venture III LP,Quiet Capital,2024,4000000,1200000,0,1320000,Venture Capital,Multi-Sector,Deploying
+F056,QUIVIRA Capital I,Quivira Capital,2024,2500000,600000,0,660000,Venture Capital,Frontier Tech,Deploying
+F057,Rally Ventures Fund IV LP,Rally Ventures,2023,5000000,2500000,300000,2800000,Venture Capital,Enterprise SaaS,Active
+F058,Rally Ventures Fund V LP,Rally Ventures,2024,6000000,1800000,0,1980000,Venture Capital,Enterprise SaaS,Deploying
+F059,Susa Ventures V LP,Susa Ventures,2023,3500000,1800000,250000,2000000,Venture Capital,AI/ML,Active
+F060,Swift Ventures Fund II LP,Swift Ventures,2024,5000000,1500000,0,1650000,Venture Capital,Enterprise,Deploying
+F061,Sync HNR SPV LLC,Sync Ventures,2024,1500000,1500000,0,1650000,Venture Capital,SPV,Active
+F062,TCV X (B) LP,Technology Crossover Ventures,2021,20000000,16000000,4000000,18000000,Growth Equity,Technology,Active
+F063,TCV XI (b) LP,Technology Crossover Ventures,2023,25000000,12000000,1500000,13500000,Growth Equity,Technology,Active
+F064,VantagePoint Venture Partners 2006,VantagePoint Capital,2006,5000000,5000000,3000000,4000000,Venture Capital,CleanTech,Harvesting
+F065,VantagePoint Venture Partners IV,VantagePoint Capital,2011,6000000,6000000,4000000,5000000,Venture Capital,CleanTech,Harvesting
+F066,Veronck Opportunities Fund LP,Veronck Capital,2023,4000000,2000000,300000,2300000,Venture Capital,Opportunity,Active
+F067,Versiduct Private Fund I LP,Versiduct Capital,2024,3000000,800000,0,880000,Venture Capital,Infrastructure,Deploying
+F068,Voyager Partners Fund II LP,Voyager Capital,2022,4000000,3000000,600000,3400000,Venture Capital,Multi-Sector,Active
+F069,Voyager Partners Select II LP,Voyager Capital,2023,3000000,1500000,200000,1700000,Venture Capital,Select Co-Invest,Active
+F070,Westly Capital Partners II,Westly Group,2022,5000000,3500000,700000,4000000,Venture Capital,Climate,Active
+F071,Wit Hambrech Ventures II-B LLC,Wit Capital,2023,2500000,1200000,150000,1350000,Venture Capital,Fintech,Active
+F072,Wit Hambrech Ventures III,Wit Capital,2024,3000000,800000,0,880000,Venture Capital,Fintech,Deploying
+F073,Blend Financial Inc (Direct),Blend Labs,2023,2000000,2000000,0,2500000,Direct Investment,Fintech,Active
+F074,Caffeinated Capital Sennie SPV III LLC,Caffeinated Capital,2024,1500000,1500000,0,1800000,Venture Capital,SPV,Active
+F075,Caffeinated Capital Sennie SPV LLC,Caffeinated Capital,2023,1200000,1200000,200000,1400000,Venture Capital,SPV,Active
+F076,Designer Fund I SPV,Designer Fund,2023,800000,800000,100000,950000,Venture Capital,SPV,Active
+F077,FOSSA,FOSSA Capital,2024,1000000,300000,0,330000,Venture Capital,Open Source,Deploying
+F078,Generate Capital Inc (Direct),Generate Capital,2023,5000000,5000000,500000,6000000,Direct Investment,Climate Infrastructure,Active
+F079,Lucidity Lights - New Legacy,Lucidity Ventures,2024,500000,500000,0,550000,Venture Capital,SPV,Active
+F080,Lucidity Lights Convertible Note,Lucidity Ventures,2023,300000,300000,0,350000,Venture Capital,Convertible Note,Active
+F081,Lucidity Lights Inc Convertible Note,Lucidity Ventures,2024,400000,400000,0,440000,Venture Capital,Convertible Note,Active
+F082,Lucidity Lights Inc New Legacy,Lucidity Ventures,2024,350000,350000,0,385000,Venture Capital,SPV,Active
+F083,Lucidity Lights Series C Preferred,Lucidity Ventures,2023,600000,600000,0,720000,Venture Capital,Preferred Stock,Active
+F084,Lucidity Lights Inc Series D,Lucidity Ventures,2024,800000,800000,0,880000,Venture Capital,Preferred Stock,Active
+F085,MGT SPV I LLC,MGT Capital,2024,1500000,1000000,0,1100000,Venture Capital,SPV,Active

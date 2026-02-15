@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWCO Investment Platform</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: #1a1d2e;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d4aa;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-section {
+            padding: 20px 0;
+        }
+
+        .nav-section-title {
+            padding: 0 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #8892a6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            background: rgba(0,212,170,0.15);
+            border-left: 3px solid #00d4aa;
+            color: #00d4aa;
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .content-header {
+            background: white;
+            padding: 24px 32px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1d2e;
+            margin-bottom: 4px;
+        }
+
+        .content-header p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .content-body {
+            padding: 32px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a1d2e;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1d2e;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: #00c48c;
+        }
+
+        .stat-change.negative {
+            color: #ff647c;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #00d4aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #00b890;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 10px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: #d4f4e8;
+            color: #00c48c;
+        }
+
+        .badge-warning {
+            background: #fff4de;
+            color: #ffb547;
+        }
+
+        .badge-info {
+            background: #dceeff;
+            color: #2196f3;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        /* Planner Tool Specific */
+        .planner-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .input-group input {
+            padding: 10px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        /* Fund Comparison */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .fund-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fund-card:hover {
+            border-color: #00d4aa;
+            box-shadow: 0 4px 12px rgba(0,212,170,0.1);
+        }
+
+        .fund-card.selected {
+            border-color: #00d4aa;
+            background: #f0fdf9;
+        }
+
+        .fund-card-header {
+            margin-bottom: 16px;
+        }
+
+        .fund-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .fund-card-gp {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .fund-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .fund-metric {
+            text-align: center;
+        }
+
+        .fund-metric-label {
+            font-size: 11px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .fund-metric-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1d2e;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const API_BASE = 'http://localhost:5001/api';
+
+        // Fetch helper
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // Format currency
+        function formatCurrency(value) {
+            if (!value) return '$0';
+            const num = parseFloat(value);
+            if (num >= 1e9) return `$${(num / 1e9).toFixed(1)}B`;
+            if (num >= 1e6) return `$${(num / 1e6).toFixed(1)}M`;
+            if (num >= 1e3) return `$${(num / 1e3).toFixed(0)}K`;
+            return `$${num.toFixed(0)}`;
+        }
+
+        // Dashboard View
+        function DashboardView({ data }) {
+            const totalCommitment = data.funds?.reduce((sum, f) => sum + parseFloat(f.commitment_amount || 0), 0) || 0;
+            const totalCalled = data.funds?.reduce((sum, f) => sum + parseFloat(f.total_called || 0), 0) || 0;
+            const totalNAV = data.funds?.reduce((sum, f) => sum + parseFloat(f.current_nav || 0), 0) || 0;
+            const totalDistributions = data.funds?.reduce((sum, f) => sum + parseFloat(f.total_distributed || 0), 0) || 0;
+
+            const portfolioTVPI = totalCalled > 0 ? (totalDistributions + totalNAV) / totalCalled : 0;
+
+            return (
+                <div>
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-label">Total Commitments</div>
+                            <div className="stat-value">{formatCurrency(totalCommitment)}</div>
+                            <div className="stat-change positive">
+                                ↑ {data.funds?.length || 0} funds
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Called Capital</div>
+                            <div className="stat-value">{formatCurrency(totalCalled)}</div>
+                            <div className="stat-change">
+                                {((totalCalled / totalCommitment) * 100).toFixed(1)}% deployed
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Current NAV</div>
+                            <div className="stat-value">{formatCurrency(totalNAV)}</div>
+                            <div className="stat-change positive">
+                                ↑ {portfolioTVPI.toFixed(2)}x TVPI
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Distributions</div>
+                            <div className="stat-value">{formatCurrency(totalDistributions)}</div>
+                            <div className="stat-change positive">
+                                {((totalDistributions / totalCalled) * 100).toFixed(1)}% DPI
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-title">Recent Portfolio Companies</div>
+                        {data.portfolioCompanies && data.portfolioCompanies.length > 0 ? (
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Company</th>
+                                            <th>Fund</th>
+                                            <th>Sector</th>
+                                            <th>Stage</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.portfolioCompanies.slice(0, 10).map(company => (
+                                            <tr key={company.company_id}>
+                                                <td><strong>{company.company_name}</strong></td>
+                                                <td>{company.fund_name}</td>
+                                                <td>{company.sector}</td>
+                                                <td>{company.stage}</td>
+                                                <td>
+                                                    <span className={`badge ${company.status === 'Active' ? 'badge-success' : 'badge-info'}`}>
+                                                        {company.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="loading">No portfolio companies data available</div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Fund Explorer View
+        function FundExplorerView({ data }) {
+            const [selectedFunds, setSelectedFunds] = useState([]);
+            const [filterSector, setFilterSector] = useState('all');
+            const [filterType, setFilterType] = useState('all');
+            const [searchTerm, setSearchTerm] = useState('');
+
+            const funds = data.funds || [];
+
+            const filteredFunds = funds.filter(fund => {
+                const matchesSector = filterSector === 'all' || fund.sector === filterSector;
+                const matchesType = filterType === 'all' || fund.fund_type === filterType;
+                const matchesSearch = !searchTerm ||
+                    fund.fund_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    fund.gp_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+                return matchesSector && matchesType && matchesSearch;
+            });
+
+            const sectors = [...new Set(funds.map(f => f.sector))];
+            const types = [...new Set(funds.map(f => f.fund_type))];
+
+            const toggleFund = (fundId) => {
+                setSelectedFunds(prev =>
+                    prev.includes(fundId)
+                        ? prev.filter(id => id !== fundId)
+                        : [...prev, fundId]
+                );
+            };
+
+            return (
+                <div>
+                    <div className="filters">
+                        <input
+                            type="text"
+                            className="filter-input"
+                            placeholder="Search funds or GPs..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <select
+                            className="filter-select"
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                        >
+                            <option value="all">All Types</option>
+                            {types.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                            ))}
+                        </select>
+                        <select
+                            className="filter-select"
+                            value={filterSector}
+                            onChange={(e) => setFilterSector(e.target.value)}
+                        >
+                            <option value="all">All Sectors</option>
+                            {sectors.map(sector => (
+                                <option key={sector} value={sector}>{sector}</option>
+                            ))}
+                        </select>
+                        {selectedFunds.length > 0 && (
+                            <button className="btn btn-secondary" onClick={() => setSelectedFunds([])}>
+                                Clear Selection ({selectedFunds.length})
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="comparison-grid">
+                        {filteredFunds.map(fund => (
+                            <div
+                                key={fund.fund_id}
+                                className={`fund-card ${selectedFunds.includes(fund.fund_id) ? 'selected' : ''}`}
+                                onClick={() => toggleFund(fund.fund_id)}
+                            >
+                                <div className="fund-card-header">
+                                    <div className="fund-card-title">{fund.fund_name}</div>
+                                    <div className="fund-card-gp">{fund.gp_name}</div>
+                                </div>
+                                <div className="fund-metrics">
+                                    <div className="fund-metric">
+                                        <div className="fund-metric-label">TVPI</div>
+                                        <div className="fund-metric-value">{fund.tvpi}x</div>
+                                    </div>
+                                    <div className="fund-metric">
+                                        <div className="fund-metric-label">DPI</div>
+                                        <div className="fund-metric-value">{fund.dpi}x</div>
+                                    </div>
+                                    <div className="fund-metric">
+                                        <div className="fund-metric-label">Vintage</div>
+                                        <div className="fund-metric-value">{fund.vintage}</div>
+                                    </div>
+                                </div>
+                                <div style={{marginTop: '12px', fontSize: '12px', color: '#6c757d'}}>
+                                    <div>{fund.sector} • {fund.status}</div>
+                                    <div>{formatCurrency(fund.commitment_amount)} committed</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {selectedFunds.length > 1 && (
+                        <div className="card" style={{marginTop: '24px'}}>
+                            <div className="card-title">Fund Comparison</div>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fund</th>
+                                            <th>GP</th>
+                                            <th>Vintage</th>
+                                            <th>Commitment</th>
+                                            <th>TVPI</th>
+                                            <th>DPI</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {funds.filter(f => selectedFunds.includes(f.fund_id)).map(fund => (
+                                            <tr key={fund.fund_id}>
+                                                <td><strong>{fund.fund_name}</strong></td>
+                                                <td>{fund.gp_name}</td>
+                                                <td>{fund.vintage}</td>
+                                                <td>{formatCurrency(fund.commitment_amount)}</td>
+                                                <td>{fund.tvpi}x</td>
+                                                <td>{fund.dpi}x</td>
+                                                <td>
+                                                    <span className={`badge badge-${fund.status === 'Active' ? 'success' : 'warning'}`}>
+                                                        {fund.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Portfolio Planner View
+        function PortfolioPlannerView() {
+            const [inputs, setInputs] = useState({
+                totalPortfolio: 10000000,
+                targetAllocation: 25,
+                investmentHorizon: 10,
+                annualCommitment: 0,
+                expectedReturn: 15
+            });
+
+            useEffect(() => {
+                // Calculate annual commitment based on target allocation
+                const targetAmount = (inputs.totalPortfolio * inputs.targetAllocation) / 100;
+                const annualCommitment = targetAmount / inputs.investmentHorizon;
+                setInputs(prev => ({ ...prev, annualCommitment }));
+            }, [inputs.totalPortfolio, inputs.targetAllocation, inputs.investmentHorizon]);
+
+            const projectedValue = inputs.annualCommitment * inputs.investmentHorizon * (1 + inputs.expectedReturn / 100);
+
+            return (
+                <div>
+                    <div className="card">
+                        <div className="card-title">Portfolio Allocation Planner</div>
+                        <p style={{color: '#6c757d', marginBottom: '24px'}}>
+                            Configure your private markets allocation strategy and pacing schedule
+                        </p>
+
+                        <div className="planner-inputs">
+                            <div className="input-group">
+                                <label>Total Portfolio Value</label>
+                                <input
+                                    type="number"
+                                    value={inputs.totalPortfolio}
+                                    onChange={(e) => setInputs({...inputs, totalPortfolio: parseFloat(e.target.value)})}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Target Private Markets Allocation (%)</label>
+                                <input
+                                    type="number"
+                                    value={inputs.targetAllocation}
+                                    onChange={(e) => setInputs({...inputs, targetAllocation: parseFloat(e.target.value)})}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Investment Horizon (years)</label>
+                                <input
+                                    type="number"
+                                    value={inputs.investmentHorizon}
+                                    onChange={(e) => setInputs({...inputs, investmentHorizon: parseFloat(e.target.value)})}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>Expected Annual Return (%)</label>
+                                <input
+                                    type="number"
+                                    value={inputs.expectedReturn}
+                                    onChange={(e) => setInputs({...inputs, expectedReturn: parseFloat(e.target.value)})}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-label">Target Allocation</div>
+                            <div className="stat-value">{formatCurrency((inputs.totalPortfolio * inputs.targetAllocation) / 100)}</div>
+                            <div className="stat-change">{inputs.targetAllocation}% of portfolio</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Annual Commitment</div>
+                            <div className="stat-value">{formatCurrency(inputs.annualCommitment)}</div>
+                            <div className="stat-change">Over {inputs.investmentHorizon} years</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Projected Value</div>
+                            <div className="stat-value">{formatCurrency(projectedValue)}</div>
+                            <div className="stat-change positive">
+                                At {inputs.expectedReturn}% return
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-title">Commitment Pacing Schedule</div>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Annual Commitment</th>
+                                        <th>Cumulative Committed</th>
+                                        <th>% of Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Array.from({ length: inputs.investmentHorizon }, (_, i) => {
+                                        const year = i + 1;
+                                        const annual = inputs.annualCommitment;
+                                        const cumulative = annual * year;
+                                        const targetAmount = (inputs.totalPortfolio * inputs.targetAllocation) / 100;
+                                        const pct = (cumulative / targetAmount) * 100;
+
+                                        return (
+                                            <tr key={year}>
+                                                <td><strong>Year {year}</strong></td>
+                                                <td>{formatCurrency(annual)}</td>
+                                                <td>{formatCurrency(cumulative)}</td>
+                                                <td>{pct.toFixed(1)}%</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Portfolio Companies View
+        function PortfolioCompaniesView({ data }) {
+            const [filterStatus, setFilterStatus] = useState('all');
+            const [filterSector, setFilterSector] = useState('all');
+            const [searchTerm, setSearchTerm] = useState('');
+
+            const companies = data.portfolioCompanies || [];
+
+            const filteredCompanies = companies.filter(company => {
+                const matchesStatus = filterStatus === 'all' || company.status === filterStatus;
+                const matchesSector = filterSector === 'all' || company.sector === filterSector;
+                const matchesSearch = !searchTerm ||
+                    company.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    company.fund_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+                return matchesStatus && matchesSector && matchesSearch;
+            });
+
+            const sectors = [...new Set(companies.map(c => c.sector))];
+            const activeCount = companies.filter(c => c.status === 'Active').length;
+            const exitedCount = companies.filter(c => c.status === 'Exited').length;
+
+            return (
+                <div>
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-label">Total Portfolio Companies</div>
+                            <div className="stat-value">{companies.length}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Active Investments</div>
+                            <div className="stat-value">{activeCount}</div>
+                            <div className="stat-change positive">{((activeCount/companies.length)*100).toFixed(0)}% of portfolio</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Successful Exits</div>
+                            <div className="stat-value">{exitedCount}</div>
+                            <div className="stat-change">{((exitedCount/companies.length)*100).toFixed(0)}% realized</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Unique Sectors</div>
+                            <div className="stat-value">{sectors.length}</div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-title">Portfolio Companies</div>
+
+                        <div className="filters">
+                            <input
+                                type="text"
+                                className="filter-input"
+                                placeholder="Search companies..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <select
+                                className="filter-select"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                            >
+                                <option value="all">All Status</option>
+                                <option value="Active">Active</option>
+                                <option value="Exited">Exited</option>
+                            </select>
+                            <select
+                                className="filter-select"
+                                value={filterSector}
+                                onChange={(e) => setFilterSector(e.target.value)}
+                            >
+                                <option value="all">All Sectors</option>
+                                {sectors.map(sector => (
+                                    <option key={sector} value={sector}>{sector}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Fund</th>
+                                        <th>GP</th>
+                                        <th>Sector</th>
+                                        <th>Stage</th>
+                                        <th>Status</th>
+                                        <th>Investment Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredCompanies.map(company => (
+                                        <tr key={company.company_id}>
+                                            <td>
+                                                <div>
+                                                    <strong>{company.company_name}</strong>
+                                                    <div style={{fontSize: '12px', color: '#6c757d', marginTop: '2px'}}>
+                                                        {company.description}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{company.fund_name}</td>
+                                            <td>{company.gp_name}</td>
+                                            <td>{company.sector}</td>
+                                            <td>{company.stage}</td>
+                                            <td>
+                                                <span className={`badge ${company.status === 'Active' ? 'badge-success' : 'badge-info'}`}>
+                                                    {company.status}
+                                                </span>
+                                            </td>
+                                            <td>{company.investment_date}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Capital Calls View
+        function CapitalCallsView({ data }) {
+            const funds = data.funds || [];
+            const totalCommitment = funds.reduce((sum, f) => sum + parseFloat(f.commitment_amount || 0), 0);
+            const totalCalled = funds.reduce((sum, f) => sum + parseFloat(f.total_called || 0), 0);
+            const uncalledCapital = totalCommitment - totalCalled;
+
+            return (
+                <div>
+                    <div className="stats-grid">
+                        <div className="stat-card">
+                            <div className="stat-label">Total Commitments</div>
+                            <div className="stat-value">{formatCurrency(totalCommitment)}</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Called Capital</div>
+                            <div className="stat-value">{formatCurrency(totalCalled)}</div>
+                            <div className="stat-change">{((totalCalled/totalCommitment)*100).toFixed(1)}% deployed</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-label">Uncalled Capital</div>
+                            <div className="stat-value">{formatCurrency(uncalledCapital)}</div>
+                            <div className="stat-change warning">{((uncalledCapital/totalCommitment)*100).toFixed(1)}% remaining</div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <div className="card-title">Fund Capital Status</div>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fund</th>
+                                        <th>GP</th>
+                                        <th>Commitment</th>
+                                        <th>Called</th>
+                                        <th>Uncalled</th>
+                                        <th>% Called</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {funds.map(fund => {
+                                        const commitment = parseFloat(fund.commitment_amount || 0);
+                                        const called = parseFloat(fund.total_called || 0);
+                                        const uncalled = commitment - called;
+                                        const pctCalled = commitment > 0 ? (called / commitment) * 100 : 0;
+
+                                        return (
+                                            <tr key={fund.fund_id}>
+                                                <td><strong>{fund.fund_name}</strong></td>
+                                                <td>{fund.gp_name}</td>
+                                                <td>{formatCurrency(commitment)}</td>
+                                                <td>{formatCurrency(called)}</td>
+                                                <td>{formatCurrency(uncalled)}</td>
+                                                <td>{pctCalled.toFixed(1)}%</td>
+                                                <td>
+                                                    <span className={`badge badge-${fund.status === 'Active' ? 'success' : fund.status === 'Deploying' ? 'warning' : 'info'}`}>
+                                                        {fund.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [activeView, setActiveView] = useState('dashboard');
+            const [loading, setLoading] = useState(true);
+            const [data, setData] = useState({
+                portfolio: null,
+                funds: null,
+                portfolioCompanies: null,
+                portfolioStats: null
+            });
+
+            useEffect(() => {
+                async function loadData() {
+                    const [portfolio, funds, portfolioCompanies, portfolioStats] = await Promise.all([
+                        fetchData('/portfolio/summary'),
+                        fetchData('/portfolio/funds'),
+                        fetchData('/portfolio-companies'),
+                        fetchData('/portfolio-companies/stats')
+                    ]);
+
+                    setData({ portfolio, funds, portfolioCompanies, portfolioStats });
+                    setLoading(false);
+                }
+                loadData();
+            }, []);
+
+            const views = {
+                dashboard: {
+                    title: 'Dashboard',
+                    subtitle: 'Overview of your portfolio performance',
+                    component: <DashboardView data={data} />
+                },
+                explorer: {
+                    title: 'Fund Explorer',
+                    subtitle: 'Browse, compare, and analyze fund opportunities',
+                    component: <FundExplorerView data={data} />
+                },
+                planner: {
+                    title: 'Portfolio Planner',
+                    subtitle: 'Plan your allocation strategy and pacing schedule',
+                    component: <PortfolioPlannerView />
+                },
+                companies: {
+                    title: 'Portfolio Companies',
+                    subtitle: 'View all underlying investments across your funds',
+                    component: <PortfolioCompaniesView data={data} />
+                },
+                capital: {
+                    title: 'Capital Calls',
+                    subtitle: 'Track committed and uncalled capital',
+                    component: <CapitalCallsView data={data} />
+                }
+            };
+
+            const currentView = views[activeView];
+
+            if (loading) {
+                return <div className="loading">Loading NEWCO Platform...</div>;
+            }
+
+            return (
+                <div className="app-container">
+                    <div className="sidebar">
+                        <div className="logo">NEWCO</div>
+
+                        <div className="nav-section">
+                            <div className="nav-section-title">Overview</div>
+                            <div
+                                className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                                onClick={() => setActiveView('dashboard')}
+                            >
+                                <span>📊</span> Dashboard
+                            </div>
+                        </div>
+
+                        <div className="nav-section">
+                            <div className="nav-section-title">Build</div>
+                            <div
+                                className={`nav-item ${activeView === 'explorer' ? 'active' : ''}`}
+                                onClick={() => setActiveView('explorer')}
+                            >
+                                <span>🔍</span> Fund Explorer
+                            </div>
+                            <div
+                                className={`nav-item ${activeView === 'planner' ? 'active' : ''}`}
+                                onClick={() => setActiveView('planner')}
+                            >
+                                <span>📈</span> Portfolio Planner
+                            </div>
+                            <div
+                                className={`nav-item ${activeView === 'companies' ? 'active' : ''}`}
+                                onClick={() => setActiveView('companies')}
+                            >
+                                <span>🏢</span> Portfolio Companies
+                            </div>
+                        </div>
+
+                        <div className="nav-section">
+                            <div className="nav-section-title">Manage</div>
+                            <div
+                                className={`nav-item ${activeView === 'capital' ? 'active' : ''}`}
+                                onClick={() => setActiveView('capital')}
+                            >
+                                <span>💰</span> Capital Calls
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="main-content">
+                        <div className="content-header">
+                            <h1>{currentView.title}</h1>
+                            <p>{currentView.subtitle}</p>
+                        </div>
+                        <div className="content-body">
+                            {currentView.component}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+{
+  "companies": {
+    "Palantir Technologies": {
+      "name": "Palantir Technologies",
+      "sector": "Defense Tech",
+      "stage": "Public",
+      "founded": 2003,
+      "location": "Denver, CO",
+      "employees": 3500,
+      "revenue": 2200000000,
+      "revenue_growth": 18,
+      "burn_rate": null,
+      "burn_multiple": null,
+      "valuation": 45000000000,
+      "total_funding": null,
+      "last_funding_date": null,
+      "last_funding_amount": null,
+      "investors": [
+        "Founders Fund",
+        "In-Q-Tel",
+        "Tiger Global"
+      ],
+      "people": [
+        "Alex Karp",
+        "Stephen Cohen",
+        "Peter Thiel"
+      ],
+      "website": null,
+      "linkedin": null,
+      "description": null,
+      "tags": [
+        "AI",
+        "Data Analytics",
+        "Government"
+      ],
+      "ipo_date": "2020-09-30",
+      "ipo_probability": 100
+    },
+    "Anduril Industries": {
+      "name": "Anduril Industries",
+      "sector": "Defense Tech",
+      "stage": "Series E",
+      "founded": 2017,
+      "location": "Costa Mesa, CA",
+      "employees": 1800,
+      "revenue": 500000000,
+      "revenue_growth": 150,
+      "burn_rate": 50000000,
+      "burn_multiple": 0.1,
+      "valuation": 8500000000,
+      "total_funding": 2100000000,
+      "last_funding_date": null,
+      "last_funding_amount": null,
+      "investors": [
+        "Founders Fund",
+        "Andreessen Horowitz",
+        "8VC"
+      ],
+      "people": [
+        "Palmer Luckey",
+        "Matt Grimm",
+        "Brian Schimpf"
+      ],
+      "website": null,
+      "linkedin": null,
+      "description": null,
+      "tags": [
+        "Drones",
+        "AI",
+        "Autonomous Systems"
+      ],
+      "ipo_date": null,
+      "ipo_probability": 85
+    },
+    "Shield AI": {
+      "name": "Shield AI",
+      "sector": "Defense Tech",
+      "stage": "Series F",
+      "founded": 2015,
+      "location": "San Diego, CA",
+      "employees": 500,
+      "revenue": 120000000,
+      "revenue_growth": 200,
+      "burn_rate": 30000000,
+      "burn_multiple": 0.25,
+      "valuation": 2700000000,
+      "total_funding": 1000000000,
+      "last_funding_date": null,
+      "last_funding_amount": null,
+      "investors": [
+        "Point72 Ventures",
+        "Andreessen Horowitz",
+        "Shield Capital"
+      ],
+      "people": [
+        "Brandon Tseng",
+        "Ryan Tseng",
+        "Andrew Reiter"
+      ],
+      "website": null,
+      "linkedin": null,
+      "description": null,
+      "tags": [
+        "AI",
+        "Autonomous Drones",
+        "Edge Computing"
+      ],
+      "ipo_date": null,
+      "ipo_probability": 75
+    },
+    "Scale AI": {
+      "name": "Scale AI",
+      "sector": "AI Infrastructure",
+      "stage": "Series E",
+      "founded": 2016,
+      "location": "San Francisco, CA",
+      "employees": 800,
+      "revenue": 600000000,
+      "revenue_growth": 100,
+      "burn_rate": 100000000,
+      "burn_multiple": 0.17,
+      "valuation": 7300000000,
+      "total_funding": 1600000000,
+      "last_funding_date": null,
+      "last_funding_amount": null,
+      "investors": [
+        "Accel",
+        "Index Ventures",
+        "Tiger Global"
+      ],
+      "people": [
+        "Alexandr Wang",
+        "Lucy Guo"
+      ],
+      "website": null,
+      "linkedin": null,
+      "description": null,
+      "tags": [
+        "AI",
+        "Data Labeling",
+        "ML Infrastructure"
+      ],
+      "ipo_date": null,
+      "ipo_probability": 90
+    },
+    "SpaceX": {
+      "name": "SpaceX",
+      "sector": "Aerospace",
+      "stage": "Growth",
+      "founded": 2002,
+      "location": "Hawthorne, CA",
+      "employees": 13000,
+      "revenue": 8000000000,
+      "revenue_growth": 30,
+      "burn_rate": null,
+      "burn_multiple": null,
+      "valuation": 180000000000,
+      "total_funding": 10000000000,
+      "last_funding_date": null,
+      "last_funding_amount": null,
+      "investors": [
+        "Founders Fund",
+        "Sequoia Capital",
+        "Gigafund"
+      ],
+      "people": [
+        "Elon Musk",
+        "Gwynne Shotwell",
+        "Tom Mueller"
+      ],
+      "website": null,
+      "linkedin": null,
+      "description": null,
+      "tags": [
+        "Rockets",
+        "Satellites",
+        "Starlink"
+      ],
+      "ipo_date": null,
+      "ipo_probability": 60
+    }
+  },
+  "people": {
+    "Alex Karp": {
+      "name": "Alex Karp",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Palantir Technologies"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Stephen Cohen": {
+      "name": "Stephen Cohen",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Palantir Technologies"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Peter Thiel": {
+      "name": "Peter Thiel",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Palantir Technologies"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Palmer Luckey": {
+      "name": "Palmer Luckey",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Anduril Industries"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Matt Grimm": {
+      "name": "Matt Grimm",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Anduril Industries"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Brian Schimpf": {
+      "name": "Brian Schimpf",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Anduril Industries"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Brandon Tseng": {
+      "name": "Brandon Tseng",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Shield AI"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Ryan Tseng": {
+      "name": "Ryan Tseng",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Shield AI"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Andrew Reiter": {
+      "name": "Andrew Reiter",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Shield AI"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Alexandr Wang": {
+      "name": "Alexandr Wang",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Scale AI"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Lucy Guo": {
+      "name": "Lucy Guo",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "Scale AI"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Elon Musk": {
+      "name": "Elon Musk",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "SpaceX"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Gwynne Shotwell": {
+      "name": "Gwynne Shotwell",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "SpaceX"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    },
+    "Tom Mueller": {
+      "name": "Tom Mueller",
+      "linkedin": null,
+      "title": null,
+      "companies": [
+        "SpaceX"
+      ],
+      "roles": [],
+      "education": [],
+      "previous_companies": [],
+      "investments": [],
+      "expertise": [],
+      "location": null
+    }
+  },
+  "metadata": {
+    "total_companies": 5,
+    "total_people": 14,
+    "last_updated": "2026-02-14T21:16:15.985013"
+  }
+}

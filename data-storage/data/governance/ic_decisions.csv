@@ -1,0 +1,6 @@
+decision_id,meeting_id,manager_id,decision_type,decision,votes_yes,votes_no,votes_abstain,rationale,follow_up,notes
+ICD00001,ICM0001,M003,Manager Evaluation,Approved,2,0,1,"Strong consumer tech focus, solid track record",,
+ICD00002,ICM0001,M009,Manager Evaluation,Watchlist,0,0,0,Interesting thesis but need more data on fund I performance,,
+ICD00003,ICM0002,M008,Manager Evaluation,Approved,3,0,0,"Excellent enterprise SaaS pipeline, strong references",,
+ICD00004,ICM0002,CompanyX,Co-Invest Approval,Approved,3,0,0,"2 managers participating, strong revenue inflection",,
+ICD00005,ICM0003,M010,Manager Evaluation,Defer,0,0,0,Wait for Q1 performance data,,

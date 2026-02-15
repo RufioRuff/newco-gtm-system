@@ -1,0 +1,795 @@
+// ════════════════════════════════════════════════════════════════
+// NEWCO PLATFORM — Prisma Schema for Supabase PostgreSQL
+// Evil Twin Capital · Seed/Pre-Seed VC Intelligence Platform
+// ════════════════════════════════════════════════════════════════
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = "native"
+}
+
+// ═══════════════════════════════════════════
+// AUTH & USER MANAGEMENT
+// ═══════════════════════════════════════════
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(VIEWER)
+  avatarUrl     String?
+  supabaseId    String?   @unique @map("supabase_id")
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  icVotes       ICVote[]
+  activities    Activity[]
+  notes         Note[]
+  tasks         Task[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  GP
+  LP
+  ANALYST
+  VIEWER
+}
+
+// ═══════════════════════════════════════════
+// FUND MANAGEMENT
+// ═══════════════════════════════════════════
+
+model Fund {
+  id              String      @id @default(uuid())
+  name            String
+  shortName       String?
+  gpName          String      @map("gp_name")
+  strategy        FundStrategy
+  vintage         Int
+  fundSize        Decimal     @map("fund_size") @db.Decimal(14, 2)
+  currency        String      @default("USD")
+  status          FundStatus  @default(ACTIVE)
+  inceptionDate   DateTime?   @map("inception_date")
+  termYears       Int?        @map("term_years")
+
+  // Performance metrics (updated periodically)
+  tvpiGross       Decimal?    @map("tvpi_gross") @db.Decimal(6, 3)
+  tvpiNet         Decimal?    @map("tvpi_net") @db.Decimal(6, 3)
+  irrGross        Decimal?    @map("irr_gross") @db.Decimal(6, 3)
+  irrNet          Decimal?    @map("irr_net") @db.Decimal(6, 3)
+  dpiNet          Decimal?    @map("dpi_net") @db.Decimal(6, 3)
+  rvpiNet         Decimal?    @map("rvpi_net") @db.Decimal(6, 3)
+  pme             Decimal?    @db.Decimal(6, 3)
+  quartile        Int?        // 1-4
+
+  // Fees
+  mgmtFeeRate     Decimal?    @map("mgmt_fee_rate") @db.Decimal(4, 3)
+  carryRate       Decimal?    @map("carry_rate") @db.Decimal(4, 3)
+  preferredReturn Decimal?    @map("preferred_return") @db.Decimal(4, 3)
+
+  // Metadata
+  benchmarkIndex  String?     @map("benchmark_index")
+  sector          String?
+  geography       String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  commitments     Commitment[]
+  investments     Investment[]
+  cashflows       Cashflow[]
+  valuations      FundValuation[]
+  gpScorecard     GPScorecard?
+  gpHealthChecks  GPHealthCheck[]
+  reUpEvals       ReUpEvaluation[]
+  secondaryDeals  SecondaryDeal[]
+
+  @@map("funds")
+}
+
+enum FundStrategy {
+  VENTURE
+  GROWTH
+  BUYOUT
+  SECONDARY
+  CO_INVEST
+  FUND_OF_FUNDS
+  REAL_ASSETS
+  CREDIT
+}
+
+enum FundStatus {
+  PROSPECTING
+  DUE_DILIGENCE
+  COMMITTED
+  ACTIVE
+  HARVESTING
+  FULLY_REALIZED
+  PASSED
+}
+
+model FundValuation {
+  id          String   @id @default(uuid())
+  fundId      String   @map("fund_id")
+  asOfDate    DateTime @map("as_of_date")
+  nav         Decimal  @db.Decimal(14, 2)
+  totalValue  Decimal  @map("total_value") @db.Decimal(14, 2)
+  paidIn      Decimal  @map("paid_in") @db.Decimal(14, 2)
+  distributed Decimal  @db.Decimal(14, 2)
+  tvpi        Decimal  @db.Decimal(6, 3)
+  irr         Decimal? @db.Decimal(6, 3)
+  dpi         Decimal? @db.Decimal(6, 3)
+  createdAt   DateTime @default(now())
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@unique([fundId, asOfDate])
+  @@map("fund_valuations")
+}
+
+// ═══════════════════════════════════════════
+// COMMITMENT & LP MANAGEMENT
+// ═══════════════════════════════════════════
+
+model Commitment {
+  id              String   @id @default(uuid())
+  fundId          String   @map("fund_id")
+  amount          Decimal  @db.Decimal(14, 2)
+  commitDate      DateTime @map("commit_date")
+  unfunded        Decimal  @db.Decimal(14, 2)
+  calledPct       Decimal? @map("called_pct") @db.Decimal(5, 2)
+  vintageYear     Int?     @map("vintage_year")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@map("commitments")
+}
+
+// ═══════════════════════════════════════════
+// COMPANIES & INVESTMENTS (Portfolio)
+// ═══════════════════════════════════════════
+
+model Company {
+  id              String    @id @default(uuid())
+  name            String
+  domain          String?
+  sector          String?
+  subSector       String?   @map("sub_sector")
+  stage           String?
+  foundedYear     Int?      @map("founded_year")
+  hqCity          String?   @map("hq_city")
+  hqCountry       String?   @map("hq_country")
+  description     String?
+  logoUrl         String?   @map("logo_url")
+  employeeCount   Int?      @map("employee_count")
+  lastRaised      Decimal?  @map("last_raised") @db.Decimal(14, 2)
+  lastValuation   Decimal?  @map("last_valuation") @db.Decimal(14, 2)
+  publicTicker    String?   @map("public_ticker")
+  isPublic        Boolean   @default(false) @map("is_public")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  investments     Investment[]
+  exitEvents      ExitEvent[]
+  fundingRounds   FundingRound[]
+  contacts        ContactCompany[]
+
+  @@map("companies")
+}
+
+model Investment {
+  id              String          @id @default(uuid())
+  fundId          String          @map("fund_id")
+  companyId       String          @map("company_id")
+  type            InvestmentType
+  status          InvestmentStatus @default(ACTIVE)
+  investDate      DateTime        @map("invest_date")
+  costBasis       Decimal         @map("cost_basis") @db.Decimal(14, 2)
+  currentValue    Decimal?        @map("current_value") @db.Decimal(14, 2)
+  ownership       Decimal?        @db.Decimal(6, 4)  // percentage
+  entryValuation  Decimal?        @map("entry_valuation") @db.Decimal(14, 2)
+  moic            Decimal?        @db.Decimal(6, 3)
+  irr             Decimal?        @db.Decimal(6, 3)
+  board           Boolean         @default(false)
+  leadInvestor    Boolean         @default(false) @map("lead_investor")
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  fund    Fund    @relation(fields: [fundId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("investments")
+}
+
+enum InvestmentType {
+  PRIMARY
+  SECONDARY
+  CO_INVEST
+  DIRECT
+  SPV
+  FOLLOW_ON
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  PARTIALLY_REALIZED
+  FULLY_REALIZED
+  WRITTEN_OFF
+  MARKED_UP
+  MARKED_DOWN
+}
+
+// ═══════════════════════════════════════════
+// CASHFLOWS
+// ═══════════════════════════════════════════
+
+model Cashflow {
+  id          String       @id @default(uuid())
+  fundId      String       @map("fund_id")
+  type        CashflowType
+  amount      Decimal      @db.Decimal(14, 2)
+  date        DateTime
+  description String?
+  category    String?      // capital_call, distribution, fee, recallable
+  isProjected Boolean      @default(false) @map("is_projected")
+  createdAt   DateTime     @default(now())
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@index([fundId, date])
+  @@map("cashflows")
+}
+
+enum CashflowType {
+  CAPITAL_CALL
+  DISTRIBUTION
+  MGMT_FEE
+  CARRY
+  EXPENSE
+  RECALLABLE
+}
+
+// ═══════════════════════════════════════════
+// EXITS & LIQUIDITY EVENTS
+// ═══════════════════════════════════════════
+
+model ExitEvent {
+  id              String    @id @default(uuid())
+  companyId       String    @map("company_id")
+  type            ExitType
+  status          ExitStatus @default(RUMORED)
+  expectedDate    DateTime? @map("expected_date")
+  actualDate      DateTime? @map("actual_date")
+  exitValuation   Decimal?  @map("exit_valuation") @db.Decimal(14, 2)
+  navImpact       Decimal?  @map("nav_impact") @db.Decimal(14, 2)
+  probability     Int?      // 0-100
+  catalyst        String?
+  thesis          String?
+  sources         String[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("exit_events")
+}
+
+enum ExitType {
+  IPO
+  SPAC
+  MA
+  SECONDARY_SALE
+  TENDER_OFFER
+  BUYBACK
+  LIQUIDATION
+  RECAPITALIZATION
+}
+
+enum ExitStatus {
+  RUMORED
+  ANNOUNCED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DELAYED
+}
+
+// ═══════════════════════════════════════════
+// FUNDING ROUNDS (Market Intelligence)
+// ═══════════════════════════════════════════
+
+model FundingRound {
+  id            String   @id @default(uuid())
+  companyId     String   @map("company_id")
+  round         String   // Series A, B, etc.
+  date          DateTime
+  amountRaised  Decimal  @map("amount_raised") @db.Decimal(14, 2)
+  preValuation  Decimal? @map("pre_valuation") @db.Decimal(14, 2)
+  postValuation Decimal? @map("post_valuation") @db.Decimal(14, 2)
+  leadInvestor  String?  @map("lead_investor")
+  investors     String[]
+  source        String?
+  createdAt     DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("funding_rounds")
+}
+
+// ═══════════════════════════════════════════
+// SECONDARY DEALS
+// ═══════════════════════════════════════════
+
+model SecondaryDeal {
+  id            String        @id @default(uuid())
+  fundId        String?       @map("fund_id")
+  name          String
+  category      String        // Distressed LP, Tail-End, GP-Led, Premium
+  status        DealStatus    @default(SCREENING)
+  askPrice      Decimal?      @map("ask_price") @db.Decimal(6, 2)  // % of NAV
+  bidPrice      Decimal?      @map("bid_price") @db.Decimal(6, 2)
+  nav           Decimal?      @db.Decimal(14, 2)
+  discountToNav Decimal?      @map("discount_to_nav") @db.Decimal(6, 2)
+  tvpi          Decimal?      @db.Decimal(6, 3)
+  vintage       Int?
+  fairValue     Decimal?      @map("fair_value") @db.Decimal(6, 2)
+  irrBase       Decimal?      @map("irr_base") @db.Decimal(6, 2)
+  irrBull       Decimal?      @map("irr_bull") @db.Decimal(6, 2)
+  irrBear       Decimal?      @map("irr_bear") @db.Decimal(6, 2)
+  thesis        String?
+  catalysts     String[]
+  risks         String[]
+  deadline      DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  fund          Fund?         @relation(fields: [fundId], references: [id])
+  icDecision    ICDecision?
+
+  @@map("secondary_deals")
+}
+
+enum DealStatus {
+  SCREENING
+  INITIAL_REVIEW
+  DUE_DILIGENCE
+  IC_REVIEW
+  NEGOTIATION
+  CLOSED
+  PASSED
+  LOST
+}
+
+// ═══════════════════════════════════════════
+// IC DECISIONS & VOTING
+// ═══════════════════════════════════════════
+
+model ICDecision {
+  id              String     @id @default(uuid())
+  dealId          String?    @unique @map("deal_id")
+  title           String
+  type            String     // secondary, co-invest, fund-commit, follow-on
+  amount          Decimal    @db.Decimal(14, 2)
+  deadline        DateTime?
+  status          ICStatus   @default(PENDING)
+  compositeScore  Int?       @map("composite_score")
+
+  // Multi-lens scores (JSON for flexibility)
+  scores          Json?      // { market: 88, team: 92, timing: 85, fit: 90, risk: 78 }
+  thesis          String?
+  keyRisks        String[]   @map("key_risks")
+  mitigants       String[]
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  deal            SecondaryDeal? @relation(fields: [dealId], references: [id])
+  votes           ICVote[]
+
+  @@map("ic_decisions")
+}
+
+enum ICStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DEFERRED
+  WITHDRAWN
+}
+
+model ICVote {
+  id           String   @id @default(uuid())
+  decisionId   String   @map("decision_id")
+  userId       String   @map("user_id")
+  vote         String   // for, against, abstain
+  conviction   Int?     // 1-10
+  comment      String?
+  createdAt    DateTime @default(now())
+
+  decision ICDecision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  user     User       @relation(fields: [userId], references: [id])
+
+  @@unique([decisionId, userId])
+  @@map("ic_votes")
+}
+
+// ═══════════════════════════════════════════
+// GP EVALUATION & MONITORING
+// ═══════════════════════════════════════════
+
+model GPScorecard {
+  id              String   @id @default(uuid())
+  fundId          String   @unique @map("fund_id")
+
+  // 50-factor scoring (grouped into categories)
+  returnsScore    Decimal? @map("returns_score") @db.Decimal(4, 1)
+  teamScore       Decimal? @map("team_score") @db.Decimal(4, 1)
+  processScore    Decimal? @map("process_score") @db.Decimal(4, 1)
+  termsScore      Decimal? @map("terms_score") @db.Decimal(4, 1)
+  fitScore        Decimal? @map("fit_score") @db.Decimal(4, 1)
+  compositeScore  Decimal? @map("composite_score") @db.Decimal(4, 1)
+
+  // Detailed factor scores (JSON blob)
+  factorScores    Json?    @map("factor_scores")
+
+  // Qualitative
+  strengths       String[]
+  concerns        String[]
+  thesis          String?
+  benchmarkRank   String?  @map("benchmark_rank") // "Top Quartile", "2nd Quartile", etc.
+
+  evaluatedAt     DateTime @map("evaluated_at")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@map("gp_scorecards")
+}
+
+model GPHealthCheck {
+  id              String     @id @default(uuid())
+  fundId          String     @map("fund_id")
+  checkDate       DateTime   @map("check_date")
+  overallStatus   HealthStatus @map("overall_status")
+
+  // Health signals
+  aumStability    Int?       @map("aum_stability")    // 0-100
+  teamRetention   Int?       @map("team_retention")   // 0-100
+  dealPace        Int?       @map("deal_pace")         // 0-100
+  styleDrift      Int?       @map("style_drift")       // 0-100
+  lpSentiment     Int?       @map("lp_sentiment")      // 0-100
+  compliance      Int?                                  // 0-100
+
+  alerts          String[]
+  signalSources   Int?       @map("signal_sources")
+  notes           String?
+  createdAt       DateTime   @default(now())
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@map("gp_health_checks")
+}
+
+enum HealthStatus {
+  HEALTHY
+  WATCH
+  ALERT
+  CRITICAL
+}
+
+model ReUpEvaluation {
+  id              String    @id @default(uuid())
+  fundId          String    @map("fund_id")
+  decision        String?   // re-up, pass, reduce, increase
+  refCallsCount   Int?      @map("ref_calls_count")
+  refCallsSummary String?   @map("ref_calls_summary")
+  recommendation  String?
+  redFlags        String[]  @map("red_flags")
+  greenFlags      String[]  @map("green_flags")
+  evaluatedAt     DateTime  @map("evaluated_at")
+  createdAt       DateTime  @default(now())
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@map("re_up_evaluations")
+}
+
+// ═══════════════════════════════════════════
+// CONTACTS & NETWORK INTELLIGENCE
+// ═══════════════════════════════════════════
+
+model Contact {
+  id              String    @id @default(uuid())
+  name            String
+  email           String?
+  phone           String?
+  title           String?
+  linkedinUrl     String?   @map("linkedin_url")
+  tier            ContactTier @default(GENERAL)
+  type            String?   // LP, GP, Advisor, Service Provider, Founder
+  reachScore      Int?      @map("reach_score")
+  authorityScore  Int?      @map("authority_score")
+  velocityScore   Int?      @map("velocity_score")
+  compositeScore  Int?      @map("composite_score")
+  lastContactedAt DateTime? @map("last_contacted_at")
+  notes           String?
+  enrichmentData  Json?     @map("enrichment_data") // Clay data
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  companies       ContactCompany[]
+  networkEdges    NetworkEdge[] @relation("sourceContact")
+  reverseEdges    NetworkEdge[] @relation("targetContact")
+
+  @@map("contacts")
+}
+
+enum ContactTier {
+  PLATFORM
+  CAPITAL
+  MULTIPLIER
+  INSTITUTIONAL
+  BERKELEY
+  TEAM
+  GENERAL
+}
+
+model ContactCompany {
+  id        String   @id @default(uuid())
+  contactId String   @map("contact_id")
+  companyId String   @map("company_id")
+  role      String?
+  current   Boolean  @default(true)
+  startDate DateTime? @map("start_date")
+  endDate   DateTime? @map("end_date")
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, companyId])
+  @@map("contact_companies")
+}
+
+model NetworkEdge {
+  id              String   @id @default(uuid())
+  sourceId        String   @map("source_id")
+  targetId        String   @map("target_id")
+  relationshipType String  @map("relationship_type") // co-investor, board, advisor, berkeley
+  strength        Int?     // 0-100
+  lastInteraction DateTime? @map("last_interaction")
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  source Contact @relation("sourceContact", fields: [sourceId], references: [id], onDelete: Cascade)
+  target Contact @relation("targetContact", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceId, targetId, relationshipType])
+  @@map("network_edges")
+}
+
+// ═══════════════════════════════════════════
+// PLATFORM / DISTRIBUTION PIPELINE
+// ═══════════════════════════════════════════
+
+model PlatformDeal {
+  id              String        @id @default(uuid())
+  platformName    String        @map("platform_name") // Mercer, Envestnet, iCapital, etc.
+  status          PlatformStatus @default(INITIAL_OUTREACH)
+  contactName     String?       @map("contact_name")
+  aum             Decimal?      @db.Decimal(14, 2)
+  advisorCount    Int?          @map("advisor_count")
+  minimumInvest   Decimal?      @map("minimum_invest") @db.Decimal(14, 2)
+  targetClose     DateTime?     @map("target_close")
+  estimatedAum    Decimal?      @map("estimated_aum") @db.Decimal(14, 2)
+  probability     Int?          // 0-100
+  nextAction      String?       @map("next_action")
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("platform_deals")
+}
+
+enum PlatformStatus {
+  INITIAL_OUTREACH
+  NDA_SIGNED
+  DD_IN_PROGRESS
+  COMMITTEE_REVIEW
+  APPROVED
+  LIVE_ON_PLATFORM
+  DECLINED
+}
+
+// ═══════════════════════════════════════════
+// PACING & VINTAGE PLANNING
+// ═══════════════════════════════════════════
+
+model PacingPlan {
+  id              String   @id @default(uuid())
+  year            Int
+  targetCommit    Decimal  @map("target_commit") @db.Decimal(14, 2)
+  actualCommit    Decimal? @map("actual_commit") @db.Decimal(14, 2)
+  strategy        String?
+  vintageTarget   Json?    @map("vintage_target") // { "2024": 30, "2025": 40, "2026": 30 }
+  jCurveData      Json?    @map("j_curve_data")   // Array of { quarter, cumCashflow, nav }
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([year])
+  @@map("pacing_plans")
+}
+
+// ═══════════════════════════════════════════
+// ACTIVITIES, NOTES, TASKS
+// ═══════════════════════════════════════════
+
+model Activity {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  type        String   // deal_update, valuation, exit, meeting, note, alert
+  title       String
+  description String?
+  entityType  String?  @map("entity_type") // fund, company, contact, deal
+  entityId    String?  @map("entity_id")
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("activities")
+}
+
+model Note {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  content     String
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("notes")
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  title       String
+  description String?
+  status      String    @default("pending") // pending, in_progress, done
+  priority    Int       @default(2)  // 1=urgent, 2=high, 3=normal, 4=low
+  dueDate     DateTime? @map("due_date")
+  entityType  String?   @map("entity_type")
+  entityId    String?   @map("entity_id")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("tasks")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String   // alert, deadline, update, system
+  title       String
+  message     String?
+  isRead      Boolean  @default(false) @map("is_read")
+  actionUrl   String?  @map("action_url")
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ═══════════════════════════════════════════
+// OMNISCIENT AI AGENTS
+// ═══════════════════════════════════════════
+
+model AgentRun {
+  id          String   @id @default(uuid())
+  agentName   String   @map("agent_name") // sentinel, persona_panel, living_thesis, dashboard_maintainer
+  status      String   @default("running") // running, completed, failed
+  triggeredBy String?  @map("triggered_by") // scheduled, manual, event
+  input       Json?
+  output      Json?
+  tokensUsed  Int?     @map("tokens_used")
+  costUsd     Decimal? @map("cost_usd") @db.Decimal(8, 4)
+  durationMs  Int?     @map("duration_ms")
+  error       String?
+  startedAt   DateTime @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@index([agentName, startedAt(sort: Desc)])
+  @@map("agent_runs")
+}
+
+model AIInsight {
+  id          String   @id @default(uuid())
+  agentName   String   @map("agent_name")
+  type        String   // thesis_update, market_signal, risk_alert, opportunity
+  title       String
+  content     String
+  confidence  Int?     // 0-100
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id")
+  isActioned  Boolean  @default(false) @map("is_actioned")
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([agentName, createdAt(sort: Desc)])
+  @@map("ai_insights")
+}
+
+// ═══════════════════════════════════════════
+// RISK SCENARIOS
+// ═══════════════════════════════════════════
+
+model RiskScenario {
+  id            String   @id @default(uuid())
+  name          String   // "Fed Rate Hike", "Tech Correction", "LP Default"
+  category      String   // market, credit, operational, liquidity, regulatory
+  probability   Int?     // 0-100
+  severity      Int?     // 1-5
+  navImpactPct  Decimal? @map("nav_impact_pct") @db.Decimal(6, 2)
+  description   String?
+  mitigants     String[]
+  affectedFunds String[] @map("affected_funds")
+  lastRunAt     DateTime? @map("last_run_at")
+  results       Json?    // scenario simulation results
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("risk_scenarios")
+}
+
+// ═══════════════════════════════════════════
+// ALPHA ATTRIBUTION
+// ═══════════════════════════════════════════
+
+model AlphaAttribution {
+  id              String   @id @default(uuid())
+  period          String   // "2024-Q4", "2025-YTD"
+  totalAlpha      Decimal  @map("total_alpha") @db.Decimal(6, 3)
+  managerSelect   Decimal? @map("manager_select") @db.Decimal(6, 3)
+  timingAlpha     Decimal? @map("timing_alpha") @db.Decimal(6, 3)
+  coInvestAlpha   Decimal? @map("co_invest_alpha") @db.Decimal(6, 3)
+  secondaryAlpha  Decimal? @map("secondary_alpha") @db.Decimal(6, 3)
+  sharpeRatio     Decimal? @map("sharpe_ratio") @db.Decimal(6, 3)
+  infoRatio       Decimal? @map("info_ratio") @db.Decimal(6, 3)
+  hitRate         Decimal? @map("hit_rate") @db.Decimal(5, 2)
+  details         Json?    // granular attribution breakdown
+  createdAt       DateTime @default(now())
+
+  @@unique([period])
+  @@map("alpha_attributions")
+}

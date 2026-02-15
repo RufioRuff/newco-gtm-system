@@ -1,0 +1,132 @@
+# Metal.ai Intelligence Configuration
+
+# Operating mode
+mode: local  # Options: local, api, hybrid
+
+# Metal.ai API Configuration (Phase 2)
+api:
+  enabled: false
+  endpoint: https://api.metal.ai/v1
+  api_key: null  # Set when available
+  timeout: 30
+
+# Routing preferences (for hybrid mode)
+routing:
+  document_analysis: local      # local, api, hybrid
+  deal_intelligence: local
+  due_diligence: local
+  knowledge_graph: local
+  market_intelligence: local
+  lp_reporting: local
+
+# Fallback settings
+fallback:
+  enabled: true
+  max_retries: 3
+  timeout_seconds: 30
+
+# LLM Model Selection (Phase 1 - Local)
+models:
+  # Document Intelligence
+  document_analysis: deepseek-r1
+  document_extraction: deepseek-coder
+  document_summary: phi4
+  document_long_form: qwen2.5
+
+  # Deal Intelligence
+  deal_analysis: deepseek-r1
+  deal_patterns: qwen2.5
+  deal_quick: mistral
+
+  # Due Diligence
+  dd_analysis: deepseek-r1
+  dd_memo_writing: phi4
+  dd_technical: deepseek-coder
+  dd_updates: mistral
+
+  # Knowledge Graph
+  graph_reasoning: qwen2.5
+  graph_relationships: deepseek-r1
+  graph_search: mistral
+
+  # Market Intelligence
+  market_analysis: qwen2.5
+  market_insights: deepseek-r1
+  market_reports: phi4
+
+  # LP Reporting
+  lp_letter_writing: phi4
+  lp_analysis: deepseek-r1
+  lp_reports: qwen2.5
+
+# LLM Parameters
+llm_params:
+  temperature: 0.7
+  max_tokens: 4096
+  top_p: 0.9
+
+  # Model-specific overrides
+  deepseek-r1:
+    temperature: 0.3  # Lower for reasoning
+    max_tokens: 8192
+
+  phi4:
+    temperature: 0.8  # Higher for creative writing
+
+  mistral:
+    temperature: 0.5  # Balanced for quick tasks
+    max_tokens: 2048
+
+# Document Processing
+documents:
+  supported_formats:
+    - pdf
+    - docx
+    - doc
+    - txt
+    - md
+  max_file_size_mb: 50
+  extract_images: true
+  ocr_enabled: true
+
+# Knowledge Graph
+knowledge_graph:
+  auto_update: true
+  relationship_threshold: 0.7
+  max_depth: 4
+
+# Due Diligence
+due_diligence:
+  workflow_duration_weeks: 8
+  auto_checklist: true
+  red_flag_threshold: 0.6
+
+# Market Intelligence
+market:
+  update_frequency: daily
+  track_competitors: true
+  sentiment_analysis: true
+
+# LP Reporting
+lp_reporting:
+  auto_generate: true
+  require_ceo_review: true
+  include_charts: true
+
+# Caching
+cache:
+  enabled: true
+  ttl_hours: 24
+  max_size_mb: 1000
+
+# Privacy & Security
+security:
+  encrypt_documents: true
+  anonymize_data: false
+  audit_log: true
+
+# Performance
+performance:
+  parallel_processing: true
+  max_concurrent_tasks: 5
+  batch_size: 10

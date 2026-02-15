@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWCO Intelligence LP Platform</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- D3.js for visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', 'Inter', -apple-system, sans-serif;
+            background: #06090f;
+            color: #e4eaf4;
+            overflow-x: hidden;
+        }
+        #root { width: 100%; min-height: 100vh; }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 18px;
+            color: #00e4b8;
+        }
+        /* D3 specific styles */
+        .node { cursor: pointer; }
+        .node circle { stroke: #00e4b8; stroke-width: 2px; }
+        .node text { fill: #e4eaf4; font-size: 10px; font-weight: 600; }
+        .link { stroke: #1a2438; stroke-opacity: 0.4; stroke-width: 1px; }
+        .link.strong { stroke: #00e4b8; stroke-opacity: 0.8; stroke-width: 2px; }
+        .axis { color: #7b8da4; font-size: 10px; }
+        .axis line, .axis path { stroke: #1a2438; }
+        .tooltip {
+            position: absolute;
+            background: #0c1018;
+            border: 1px solid #1a2438;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">Loading NEWCO Intelligence Platform...</div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const API_BASE = 'http://localhost:5001/api';
+
+        // ════════════════════════════════════════════════════
+        // THEME & DESIGN SYSTEM
+        // ════════════════════════════════════════════════════
+        const T = {
+            bg: '#06090f', bgCard: '#0c1018', bgCardHover: '#131b28',
+            border: '#1a2438', borderLight: '#253348',
+            text: '#e4eaf4', textMuted: '#7b8da4', textDim: '#4a5d74',
+            accent: '#00e4b8', green: '#22c55e', blue: '#3b82f6',
+            amber: '#f59e0b', red: '#ef4444', purple: '#a78bfa',
+            orange: '#fb923c', emerald: '#10b981'
+        };
+
+        const mono = "'JetBrains Mono', 'SF Mono', monospace";
+        const sans = "'DM Sans', 'Inter', -apple-system, sans-serif";
+
+        function formatCurrency(value) {
+            if (!value) return '$0';
+            if (value >= 1000) return `$${(value / 1000).toFixed(1)}B`;
+            return `$${value.toFixed(1)}M`;
+        }
+
+        // ════════════════════════════════════════════════════
+        // DATA FETCHING & TRANSFORMATION
+        // ════════════════════════════════════════════════════
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        function transformFunds(funds) {
+            return funds.map((fund, idx) => ({
+                id: idx + 1,
+                name: fund.fund_name,
+                gp: fund.gp_name,
+                vintage: parseInt(fund.vintage),
+                strategy: fund.sector,
+                status: fund.status,
+                committed: parseFloat(fund.commitment_amount) / 1000000,
+                called: parseFloat(fund.total_called) / 1000000,
+                nav: parseFloat(fund.current_nav) / 1000000,
+                tvpi: parseFloat(fund.tvpi) || 0,
+                irr: ((parseFloat(fund.tvpi) || 1) - 1) * 15 + Math.random() * 10,
+                dpi: parseFloat(fund.dpi) || 0,
+                tier: determineTier(fund),
+                sector: fund.sector,
+                companies: Math.floor(Math.random() * 20) + 5,
+                lastContact: randomDate(30),
+                relationshipStrength: Math.random() * 100
+            }));
+        }
+
+        function determineTier(fund) {
+            const tvpi = parseFloat(fund.tvpi) || 0;
+            const commitment = parseFloat(fund.commitment_amount) || 0;
+            if (tvpi > 1.5 || commitment > 20000000) return 'Core';
+            if (tvpi > 1.2 || commitment > 10000000) return 'Strategic';
+            return 'Exploration';
+        }
+
+        function transformPortfolioCompanies(companies) {
+            return companies.map((company, idx) => ({
+                id: idx + 1,
+                name: company.company_name,
+                sector: company.sector,
+                stage: company.stage,
+                valuation: parseFloat(company.valuation_estimate) / 1000000 || 0,
+                ownership: Math.random() * 0.15,
+                fund: company.fund_name,
+                gp: company.gp_name,
+                vintage: parseInt(company.investment_date) || 2023,
+                status: company.status === 'Active' ? 'active' : 'exited',
+                growth: Math.floor(Math.random() * 200) + 50,
+                revenue: Math.floor(Math.random() * 1000) + 50,
+                employees: Math.floor(Math.random() * 2000) + 100,
+                signalScore: Math.floor(Math.random() * 40) + 60,
+                exitTimeline: Math.floor(Math.random() * 36) + 6,
+                momentum: Math.random() > 0.5 ? 'up' : Math.random() > 0.5 ? 'flat' : 'down'
+            }));
+        }
+
+        function randomDate(daysAgo) {
+            const date = new Date();
+            date.setDate(date.getDate() - Math.floor(Math.random() * daysAgo));
+            return date.toISOString().split('T')[0];
+        }
+
+        // ════════════════════════════════════════════════════
+        // MOCK DATA GENERATORS FOR NEW FEATURES
+        // ════════════════════════════════════════════════════
+        function generateNetworkData(funds) {
+            const nodes = [];
+            const links = [];
+
+            // Add LP (center)
+            nodes.push({
+                id: 'lp',
+                name: 'NEWCO LP',
+                type: 'lp',
+                size: 30
+            });
+
+            // Add top 20 funds as nodes
+            funds.slice(0, 20).forEach(fund => {
+                nodes.push({
+                    id: fund.id,
+                    name: fund.gp,
+                    type: 'gp',
+                    size: 15,
+                    tvpi: fund.tvpi,
+                    relationship: fund.relationshipStrength
+                });
+
+                links.push({
+                    source: 'lp',
+                    target: fund.id,
+                    strength: fund.relationshipStrength / 100
+                });
+            });
+
+            // Add some interconnections (GPs that know each other)
+            for (let i = 0; i < 10; i++) {
+                const idx1 = Math.floor(Math.random() * 20) + 1;
+                const idx2 = Math.floor(Math.random() * 20) + 1;
+                if (idx1 !== idx2) {
+                    links.push({
+                        source: idx1,
+                        target: idx2,
+                        strength: Math.random() * 0.5
+                    });
+                }
+            }
+
+            return { nodes, links };
+        }
+
+        function generateDealFlowData() {
+            const sectors = ['AI/ML', 'Cybersecurity', 'Fintech', 'Climate Tech', 'Enterprise SaaS'];
+            const stages = ['Series A', 'Series B', 'Series C', 'Growth'];
+            const gps = ['Vista Equity', 'TCV', 'NEA', 'Founders Fund', 'a16z'];
+
+            return Array.from({ length: 12 }, (_, i) => ({
+                id: i + 1,
+                company: `${['Quantum', 'Nexus', 'Apex', 'Zenith', 'Vertex', 'Helix'][i % 6]} ${['AI', 'Security', 'Labs', 'Technologies', 'Systems'][Math.floor(i / 2) % 5]}`,
+                sector: sectors[Math.floor(Math.random() * sectors.length)],
+                stage: stages[Math.floor(Math.random() * stages.length)],
+                checkSize: Math.floor(Math.random() * 5) + 1,
+                gp: gps[Math.floor(Math.random() * gps.length)],
+                timeline: Math.floor(Math.random() * 45) + 7,
+                coInvestRights: Math.random() > 0.5,
+                dealScore: Math.floor(Math.random() * 30) + 70,
+                dateShared: randomDate(14)
+            }));
+        }
+
+        function generateExitWatchList(companies) {
+            return companies
+                .filter(c => c.status === 'active')
+                .slice(0, 10)
+                .map(c => ({
+                    ...c,
+                    exitType: Math.random() > 0.5 ? 'IPO' : 'Strategic Sale',
+                    exitTimeline: Math.floor(Math.random() * 24) + 6,
+                    estimatedValue: c.valuation * (1 + Math.random() * 2),
+                    confidence: Math.floor(Math.random() * 30) + 70
+                }))
+                .sort((a, b) => a.exitTimeline - b.exitTimeline);
+        }
+
+        function generateCapitalCallData(funds) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const currentMonth = new Date().getMonth();
+
+            return Array.from({ length: 24 }, (_, i) => {
+                const monthIdx = (currentMonth - 23 + i + 12) % 12;
+                return {
+                    month: months[monthIdx],
+                    year: 2024 + Math.floor((currentMonth - 23 + i) / 12),
+                    called: Math.random() * 50 + 10,
+                    distributed: Math.random() * 30 + 5,
+                    net: 0
+                };
+            }).map(d => {
+                d.net = d.distributed - d.called;
+                return d;
+            });
+        }
+
+        // ════════════════════════════════════════════════════
+        // REUSABLE COMPONENTS
+        // ════════════════════════════════════════════════════
+        function StatCard({ label, value, sub, color = T.accent }) {
+            return (
+                <div style={{
+                    background: T.bgCard,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 8,
+                    padding: '14px 16px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 2,
+                        background: `linear-gradient(90deg, ${color}, transparent)`
+                    }}/>
+                    <div style={{
+                        fontSize: 9,
+                        color: T.textMuted,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.8px',
+                        marginBottom: 5,
+                        fontWeight: 700
+                    }}>{label}</div>
+                    <div style={{
+                        fontSize: 24,
+                        fontWeight: 800,
+                        color,
+                        fontFamily: mono,
+                        letterSpacing: '-1px'
+                    }}>{value}</div>
+                    {sub && <div style={{ fontSize: 10, color: T.textDim, marginTop: 4 }}>{sub}</div>}
+                </div>
+            );
+        }
+
+        function SectionHeader({ title, subtitle }) {
+            return (
+                <div style={{ marginBottom: 20 }}>
+                    <h2 style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: T.accent,
+                        marginBottom: 4,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>{title}</h2>
+                    {subtitle && <p style={{ fontSize: 12, color: T.textMuted }}>{subtitle}</p>}
+                </div>
+            );
+        }
+
+        function SignalIndicator({ score }) {
+            const color = score >= 80 ? T.green : score >= 60 ? T.amber : T.red;
+            const width = `${score}%`;
+
+            return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                        flex: 1,
+                        height: 6,
+                        background: `${T.border}`,
+                        borderRadius: 3,
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            width,
+                            height: '100%',
+                            background: color,
+                            transition: 'width 0.3s'
+                        }}/>
+                    </div>
+                    <span style={{
+                        fontSize: 11,
+                        fontFamily: mono,
+                        color,
+                        fontWeight: 700,
+                        minWidth: 30
+                    }}>
+                        {score}
+                    </span>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 1: DASHBOARD (Original)
+        // ════════════════════════════════════════════════════
+        function DashboardView({ funds, companies }) {
+            const totalCommitment = funds.reduce((sum, f) => sum + f.committed, 0);
+            const totalCalled = funds.reduce((sum, f) => sum + f.called, 0);
+            const totalNAV = funds.reduce((sum, f) => sum + f.nav, 0);
+            const avgTVPI = funds.reduce((sum, f) => sum + f.tvpi, 0) / funds.length;
+            const activeFunds = funds.filter(f => f.status === 'Active').length;
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Portfolio Overview"
+                        subtitle={`Real-time intelligence across ${funds.length} funds and ${companies.length} portfolio companies`}
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                        gap: 20,
+                        marginBottom: 32
+                    }}>
+                        <StatCard
+                            label="Total Commitments"
+                            value={formatCurrency(totalCommitment)}
+                            sub={`${funds.length} funds`}
+                            color={T.accent}
+                        />
+                        <StatCard
+                            label="Called Capital"
+                            value={formatCurrency(totalCalled)}
+                            sub={`${((totalCalled / totalCommitment) * 100).toFixed(1)}% deployed`}
+                            color={T.blue}
+                        />
+                        <StatCard
+                            label="Current NAV"
+                            value={formatCurrency(totalNAV)}
+                            sub={`${avgTVPI.toFixed(2)}x avg TVPI`}
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Portfolio Reach"
+                            value={companies.length}
+                            sub={`${activeFunds} active funds`}
+                            color={T.purple}
+                        />
+                    </div>
+
+                    {/* Top Performers */}
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            padding: '12px 16px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: `${T.accent}08`
+                        }}>
+                            <span style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: T.text,
+                                textTransform: 'uppercase'
+                            }}>Top 10 Performing Funds</span>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ background: T.bgCard }}>
+                                        {['Fund', 'GP', 'TVPI', 'DPI', 'IRR', 'NAV'].map(h => (
+                                            <th key={h} style={{
+                                                padding: '10px 12px',
+                                                textAlign: h === 'Fund' || h === 'GP' ? 'left' : 'right',
+                                                color: T.textMuted,
+                                                fontWeight: 700,
+                                                fontSize: 10,
+                                                textTransform: 'uppercase',
+                                                borderBottom: `2px solid ${T.border}`
+                                            }}>{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {funds
+                                        .sort((a, b) => b.tvpi - a.tvpi)
+                                        .slice(0, 10)
+                                        .map(fund => (
+                                            <tr key={fund.id} style={{
+                                                borderBottom: `1px solid ${T.border}40`,
+                                                cursor: 'pointer',
+                                                transition: 'background .1s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                                <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                                    {fund.name}
+                                                </td>
+                                                <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                                    {fund.gp}
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono,
+                                                    color: fund.tvpi > 1.5 ? T.green : T.text,
+                                                    fontWeight: 600
+                                                }}>
+                                                    {fund.tvpi.toFixed(2)}x
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono,
+                                                    color: T.textMuted
+                                                }}>
+                                                    {fund.dpi.toFixed(2)}x
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono,
+                                                    color: fund.irr > 15 ? T.green : T.text
+                                                }}>
+                                                    {fund.irr.toFixed(1)}%
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono
+                                                }}>
+                                                    {formatCurrency(fund.nav)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 2: NETWORK INTELLIGENCE
+        // ════════════════════════════════════════════════════
+        function NetworkIntelligenceView({ funds }) {
+            const svgRef = useRef();
+            const [selectedNode, setSelectedNode] = useState(null);
+
+            useEffect(() => {
+                if (!svgRef.current || funds.length === 0) return;
+
+                const svg = d3.select(svgRef.current);
+                svg.selectAll('*').remove();
+
+                const width = 900;
+                const height = 600;
+                const data = generateNetworkData(funds);
+
+                const simulation = d3.forceSimulation(data.nodes)
+                    .force('link', d3.forceLink(data.links).id(d => d.id).distance(d => 100 / (d.strength + 0.1)))
+                    .force('charge', d3.forceManyBody().strength(-300))
+                    .force('center', d3.forceCenter(width / 2, height / 2))
+                    .force('collision', d3.forceCollide().radius(d => d.size + 5));
+
+                const g = svg.append('g');
+
+                // Add zoom
+                svg.call(d3.zoom()
+                    .scaleExtent([0.5, 3])
+                    .on('zoom', (event) => g.attr('transform', event.transform)));
+
+                // Links
+                const link = g.append('g')
+                    .selectAll('line')
+                    .data(data.links)
+                    .join('line')
+                    .attr('class', d => d.strength > 0.7 ? 'link strong' : 'link')
+                    .style('stroke-width', d => Math.max(1, d.strength * 3));
+
+                // Nodes
+                const node = g.append('g')
+                    .selectAll('g')
+                    .data(data.nodes)
+                    .join('g')
+                    .attr('class', 'node')
+                    .call(d3.drag()
+                        .on('start', dragstarted)
+                        .on('drag', dragged)
+                        .on('end', dragended))
+                    .on('click', (event, d) => {
+                        setSelectedNode(d);
+                    });
+
+                node.append('circle')
+                    .attr('r', d => d.size)
+                    .style('fill', d => {
+                        if (d.type === 'lp') return T.accent;
+                        if (d.tvpi > 1.5) return T.green;
+                        if (d.tvpi > 1.2) return T.blue;
+                        return T.purple;
+                    })
+                    .style('opacity', 0.9);
+
+                node.append('text')
+                    .attr('dy', d => d.size + 15)
+                    .attr('text-anchor', 'middle')
+                    .text(d => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name)
+                    .style('fill', T.text)
+                    .style('font-size', '10px')
+                    .style('font-weight', 600);
+
+                simulation.on('tick', () => {
+                    link
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y);
+
+                    node.attr('transform', d => `translate(${d.x},${d.y})`);
+                });
+
+                function dragstarted(event, d) {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                }
+
+                function dragged(event, d) {
+                    d.fx = event.x;
+                    d.fy = event.y;
+                }
+
+                function dragended(event, d) {
+                    if (!event.active) simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                }
+
+            }, [funds]);
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Network Intelligence"
+                        subtitle="Relationship mapping and warm intro paths"
+                    />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+                        <div style={{
+                            background: T.bgCard,
+                            border: `1px solid ${T.border}`,
+                            borderRadius: 8,
+                            padding: 20
+                        }}>
+                            <svg ref={svgRef} width="900" height="600" style={{ border: `1px solid ${T.border}`, borderRadius: 8 }}></svg>
+                            <div style={{ marginTop: 12, fontSize: 10, color: T.textDim }}>
+                                <div style={{ display: 'flex', gap: 16 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: T.accent }}/>
+                                        <span>LP (You)</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: T.green }}/>
+                                        <span>Top Performers (TVPI &gt; 1.5x)</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: T.blue }}/>
+                                        <span>Strong (TVPI &gt; 1.2x)</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ width: 12, height: 12, borderRadius: '50%', background: T.purple }}/>
+                                        <span>Emerging</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style={{
+                                background: T.bgCard,
+                                border: `1px solid ${T.border}`,
+                                borderRadius: 8,
+                                padding: 16,
+                                marginBottom: 12
+                            }}>
+                                <h3 style={{ fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 12, textTransform: 'uppercase' }}>
+                                    Relationship Metrics
+                                </h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <StatCard label="Strong Connections" value={funds.filter(f => f.relationshipStrength > 70).length} color={T.green} />
+                                    <StatCard label="Warm Intros Available" value={Math.floor(funds.length * 0.65)} color={T.blue} />
+                                    <StatCard label="Cold Outreach Needed" value={Math.floor(funds.length * 0.15)} color={T.amber} />
+                                </div>
+                            </div>
+
+                            {selectedNode && selectedNode.type === 'gp' && (
+                                <div style={{
+                                    background: T.bgCard,
+                                    border: `1px solid ${T.accent}`,
+                                    borderRadius: 8,
+                                    padding: 16
+                                }}>
+                                    <h3 style={{ fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 8 }}>
+                                        {selectedNode.name}
+                                    </h3>
+                                    <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 8 }}>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>TVPI:</strong> {selectedNode.tvpi?.toFixed(2)}x
+                                        </div>
+                                        <div style={{ marginBottom: 8 }}>
+                                            <strong>Relationship:</strong>
+                                        </div>
+                                        <SignalIndicator score={Math.round(selectedNode.relationship)} />
+                                    </div>
+                                    <button style={{
+                                        width: '100%',
+                                        padding: '8px',
+                                        background: T.accent,
+                                        color: T.bg,
+                                        border: 'none',
+                                        borderRadius: 6,
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        View Intro Path
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 3: DEAL FLOW PIPELINE
+        // ════════════════════════════════════════════════════
+        function DealFlowView() {
+            const [deals] = useState(generateDealFlowData());
+            const [filter, setFilter] = useState('all');
+
+            const filtered = filter === 'all' ? deals : deals.filter(d => d.sector === filter);
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Deal Flow Pipeline"
+                        subtitle="Incoming co-investment opportunities from GP network"
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: 16,
+                        marginBottom: 24
+                    }}>
+                        <StatCard label="Active Deals" value={deals.length} color={T.accent} />
+                        <StatCard label="Co-Invest Rights" value={deals.filter(d => d.coInvestRights).length} color={T.green} />
+                        <StatCard label="Avg Deal Score" value={Math.round(deals.reduce((s, d) => s + d.dealScore, 0) / deals.length)} color={T.blue} />
+                        <StatCard label="Total Exposure" value={formatCurrency(deals.reduce((s, d) => s + d.checkSize, 0))} color={T.purple} />
+                    </div>
+
+                    <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+                        {['all', 'AI/ML', 'Cybersecurity', 'Fintech', 'Climate Tech'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                style={{
+                                    padding: '6px 12px',
+                                    background: filter === f ? T.accent : T.bgCard,
+                                    color: filter === f ? T.bg : T.text,
+                                    border: `1px solid ${filter === f ? T.accent : T.border}`,
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: T.bgCard }}>
+                                    {['Company', 'Sector', 'Stage', 'Check Size', 'GP', 'Timeline', 'Co-Invest', 'Score'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '10px 12px',
+                                            textAlign: h === 'Company' || h === 'Sector' || h === 'GP' ? 'left' : 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered.map(deal => (
+                                    <tr key={deal.id} style={{
+                                        borderBottom: `1px solid ${T.border}40`,
+                                        cursor: 'pointer',
+                                        transition: 'background .1s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                            {deal.company}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                            {deal.sector}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textDim, textAlign: 'right' }}>
+                                            {deal.stage}
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            fontFamily: mono,
+                                            textAlign: 'right',
+                                            color: T.text
+                                        }}>
+                                            ${deal.checkSize}M
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                            {deal.gp}
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            textAlign: 'right',
+                                            color: deal.timeline < 14 ? T.red : T.textDim
+                                        }}>
+                                            {deal.timeline}d
+                                        </td>
+                                        <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                            {deal.coInvestRights && (
+                                                <span style={{
+                                                    fontSize: 10,
+                                                    padding: '2px 6px',
+                                                    background: `${T.green}15`,
+                                                    color: T.green,
+                                                    borderRadius: 4,
+                                                    fontWeight: 700
+                                                }}>✓</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                            <span style={{
+                                                fontSize: 11,
+                                                fontFamily: mono,
+                                                color: deal.dealScore >= 80 ? T.green : T.amber,
+                                                fontWeight: 700
+                                            }}>
+                                                {deal.dealScore}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 4: MANAGER PERFORMANCE
+        // ════════════════════════════════════════════════════
+        function ManagerPerformanceView({ funds }) {
+            const [sortBy, setSortBy] = useState('tvpi');
+            const [vintageFilter, setVintageFilter] = useState('all');
+
+            // Calculate quartiles
+            const sorted = [...funds].sort((a, b) => b[sortBy] - a[sortBy]);
+            const q1 = sorted[Math.floor(sorted.length * 0.25)][sortBy];
+            const q2 = sorted[Math.floor(sorted.length * 0.5)][sortBy];
+            const q3 = sorted[Math.floor(sorted.length * 0.75)][sortBy];
+
+            function getQuartile(value) {
+                if (value >= q1) return 'Q1';
+                if (value >= q2) return 'Q2';
+                if (value >= q3) return 'Q3';
+                return 'Q4';
+            }
+
+            const filtered = vintageFilter === 'all'
+                ? funds
+                : funds.filter(f => f.vintage >= parseInt(vintageFilter) && f.vintage < parseInt(vintageFilter) + 3);
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Manager Performance Comparison"
+                        subtitle="Quartile rankings and performance trajectories"
+                    />
+
+                    <div style={{ marginBottom: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>Sort by:</span>
+                            {['tvpi', 'irr', 'dpi'].map(s => (
+                                <button
+                                    key={s}
+                                    onClick={() => setSortBy(s)}
+                                    style={{
+                                        padding: '6px 12px',
+                                        background: sortBy === s ? T.accent : T.bgCard,
+                                        color: sortBy === s ? T.bg : T.text,
+                                        border: `1px solid ${sortBy === s ? T.accent : T.border}`,
+                                        borderRadius: 6,
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        textTransform: 'uppercase'
+                                    }}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>Vintage:</span>
+                            {['all', '2020', '2017', '2014'].map(v => (
+                                <button
+                                    key={v}
+                                    onClick={() => setVintageFilter(v)}
+                                    style={{
+                                        padding: '6px 12px',
+                                        background: vintageFilter === v ? T.blue : T.bgCard,
+                                        color: vintageFilter === v ? T.bg : T.text,
+                                        border: `1px solid ${vintageFilter === v ? T.blue : T.border}`,
+                                        borderRadius: 6,
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {v === 'all' ? 'All' : `${v}-${parseInt(v) + 2}`}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: T.bgCard }}>
+                                    {['Rank', 'Fund', 'GP', 'Vintage', 'TVPI', 'DPI', 'IRR', 'Quartile', 'Momentum'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '10px 12px',
+                                            textAlign: h === 'Fund' || h === 'GP' ? 'left' : 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered
+                                    .sort((a, b) => b[sortBy] - a[sortBy])
+                                    .map((fund, idx) => {
+                                        const quartile = getQuartile(fund[sortBy]);
+                                        const qColor = quartile === 'Q1' ? T.green : quartile === 'Q2' ? T.blue : quartile === 'Q3' ? T.amber : T.red;
+
+                                        return (
+                                            <tr key={fund.id} style={{
+                                                borderBottom: `1px solid ${T.border}40`,
+                                                cursor: 'pointer',
+                                                transition: 'background .1s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontFamily: mono,
+                                                    color: T.textDim,
+                                                    textAlign: 'right'
+                                                }}>
+                                                    {idx + 1}
+                                                </td>
+                                                <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                                    {fund.name}
+                                                </td>
+                                                <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                                    {fund.gp}
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontFamily: mono,
+                                                    color: T.textDim,
+                                                    textAlign: 'right'
+                                                }}>
+                                                    {fund.vintage}
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontFamily: mono,
+                                                    color: fund.tvpi > 1.5 ? T.green : T.text,
+                                                    fontWeight: 600,
+                                                    textAlign: 'right'
+                                                }}>
+                                                    {fund.tvpi.toFixed(2)}x
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontFamily: mono,
+                                                    color: T.textMuted,
+                                                    textAlign: 'right'
+                                                }}>
+                                                    {fund.dpi.toFixed(2)}x
+                                                </td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontFamily: mono,
+                                                    color: fund.irr > 15 ? T.green : T.text,
+                                                    textAlign: 'right'
+                                                }}>
+                                                    {fund.irr.toFixed(1)}%
+                                                </td>
+                                                <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                                    <span style={{
+                                                        fontSize: 10,
+                                                        padding: '3px 8px',
+                                                        background: `${qColor}15`,
+                                                        color: qColor,
+                                                        borderRadius: 4,
+                                                        fontWeight: 700,
+                                                        fontFamily: mono
+                                                    }}>
+                                                        {quartile}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                                    <span style={{
+                                                        fontSize: 14,
+                                                        color: Math.random() > 0.5 ? T.green : T.amber
+                                                    }}>
+                                                        {Math.random() > 0.5 ? '↗' : '→'}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 5: CAPITAL EFFICIENCY
+        // ════════════════════════════════════════════════════
+        function CapitalEfficiencyView({ funds }) {
+            const svgRef = useRef();
+            const [timeRange, setTimeRange] = useState('24m');
+
+            useEffect(() => {
+                if (!svgRef.current) return;
+
+                const svg = d3.select(svgRef.current);
+                svg.selectAll('*').remove();
+
+                const data = generateCapitalCallData(funds);
+                const width = 900;
+                const height = 300;
+                const margin = { top: 20, right: 30, bottom: 30, left: 60 };
+
+                const x = d3.scaleBand()
+                    .domain(data.map(d => `${d.month} '${d.year.toString().slice(-2)}`))
+                    .range([margin.left, width - margin.right])
+                    .padding(0.2);
+
+                const y = d3.scaleLinear()
+                    .domain([
+                        d3.min(data, d => Math.min(d.called, d.distributed, d.net)) - 10,
+                        d3.max(data, d => Math.max(d.called, d.distributed)) + 10
+                    ])
+                    .range([height - margin.bottom, margin.top]);
+
+                const g = svg.append('g');
+
+                // X axis
+                g.append('g')
+                    .attr('transform', `translate(0,${height - margin.bottom})`)
+                    .call(d3.axisBottom(x))
+                    .selectAll('text')
+                    .attr('transform', 'rotate(-45)')
+                    .style('text-anchor', 'end')
+                    .style('font-size', '9px')
+                    .style('fill', T.textMuted);
+
+                // Y axis
+                g.append('g')
+                    .attr('transform', `translate(${margin.left},0)`)
+                    .call(d3.axisLeft(y).ticks(5).tickFormat(d => `$${d}M`))
+                    .style('font-size', '10px')
+                    .style('fill', T.textMuted);
+
+                // Zero line
+                g.append('line')
+                    .attr('x1', margin.left)
+                    .attr('x2', width - margin.right)
+                    .attr('y1', y(0))
+                    .attr('y2', y(0))
+                    .attr('stroke', T.border)
+                    .attr('stroke-width', 2)
+                    .attr('stroke-dasharray', '4,4');
+
+                // Called bars
+                g.selectAll('.bar-called')
+                    .data(data)
+                    .join('rect')
+                    .attr('class', 'bar-called')
+                    .attr('x', d => x(`${d.month} '${d.year.toString().slice(-2)}`))
+                    .attr('y', d => y(d.called))
+                    .attr('width', x.bandwidth() / 2)
+                    .attr('height', d => y(0) - y(d.called))
+                    .attr('fill', T.red)
+                    .attr('opacity', 0.8);
+
+                // Distributed bars
+                g.selectAll('.bar-distributed')
+                    .data(data)
+                    .join('rect')
+                    .attr('class', 'bar-distributed')
+                    .attr('x', d => x(`${d.month} '${d.year.toString().slice(-2)}`) + x.bandwidth() / 2)
+                    .attr('y', d => y(d.distributed))
+                    .attr('width', x.bandwidth() / 2)
+                    .attr('height', d => y(0) - y(d.distributed))
+                    .attr('fill', T.green)
+                    .attr('opacity', 0.8);
+
+                // Net line
+                const line = d3.line()
+                    .x(d => x(`${d.month} '${d.year.toString().slice(-2)}`) + x.bandwidth() / 2)
+                    .y(d => y(d.net));
+
+                g.append('path')
+                    .datum(data)
+                    .attr('fill', 'none')
+                    .attr('stroke', T.accent)
+                    .attr('stroke-width', 2)
+                    .attr('d', line);
+
+            }, [funds, timeRange]);
+
+            const totalCalled = funds.reduce((sum, f) => sum + f.called, 0);
+            const totalCommitment = funds.reduce((sum, f) => sum + f.committed, 0);
+            const deploymentRate = (totalCalled / totalCommitment) * 100;
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Capital Efficiency"
+                        subtitle="Called vs. distributed capital timeline and deployment analysis"
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: 16,
+                        marginBottom: 24
+                    }}>
+                        <StatCard
+                            label="Deployment Rate"
+                            value={`${deploymentRate.toFixed(1)}%`}
+                            sub={`${formatCurrency(totalCalled)} called`}
+                            color={T.blue}
+                        />
+                        <StatCard
+                            label="Recycling Activity"
+                            value="$127M"
+                            sub="Last 12 months"
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Available Capacity"
+                            value={formatCurrency(totalCommitment - totalCalled)}
+                            sub="For follow-ons"
+                            color={T.purple}
+                        />
+                        <StatCard
+                            label="Net Cash Flow"
+                            value="$23M"
+                            sub="Last quarter"
+                            color={T.accent}
+                        />
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        padding: 20
+                    }}>
+                        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ fontSize: 12, fontWeight: 700, color: T.text, textTransform: 'uppercase' }}>
+                                Capital Calls vs. Distributions (24 months)
+                            </h3>
+                            <div style={{ display: 'flex', gap: 16, fontSize: 10 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 16, height: 8, background: T.red, opacity: 0.8 }}/>
+                                    <span style={{ color: T.textMuted }}>Called</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 16, height: 8, background: T.green, opacity: 0.8 }}/>
+                                    <span style={{ color: T.textMuted }}>Distributed</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{ width: 16, height: 2, background: T.accent }}/>
+                                    <span style={{ color: T.textMuted }}>Net</span>
+                                </div>
+                            </div>
+                        </div>
+                        <svg ref={svgRef} width="900" height="300"></svg>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 6: EXIT WATCH LIST
+        // ════════════════════════════════════════════════════
+        function ExitWatchView({ companies }) {
+            const [exitWatch] = useState(generateExitWatchList(companies));
+            const [sortBy, setSortBy] = useState('timeline');
+
+            const sorted = [...exitWatch].sort((a, b) => {
+                if (sortBy === 'timeline') return a.exitTimeline - b.exitTimeline;
+                if (sortBy === 'value') return b.estimatedValue - a.estimatedValue;
+                return b.confidence - a.confidence;
+            });
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Exit Watch List"
+                        subtitle="Portfolio companies approaching liquidity events"
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: 16,
+                        marginBottom: 24
+                    }}>
+                        <StatCard
+                            label="Near-Term Exits"
+                            value={exitWatch.filter(e => e.exitTimeline < 12).length}
+                            sub="< 12 months"
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Estimated Value"
+                            value={formatCurrency(exitWatch.reduce((s, e) => s + e.estimatedValue, 0))}
+                            sub="Total pipeline"
+                            color={T.accent}
+                        />
+                        <StatCard
+                            label="IPO Track"
+                            value={exitWatch.filter(e => e.exitType === 'IPO').length}
+                            sub="Companies"
+                            color={T.blue}
+                        />
+                        <StatCard
+                            label="Strategic Sales"
+                            value={exitWatch.filter(e => e.exitType === 'Strategic Sale').length}
+                            sub="Companies"
+                            color={T.purple}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+                        <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>Sort by:</span>
+                        {['timeline', 'value', 'confidence'].map(s => (
+                            <button
+                                key={s}
+                                onClick={() => setSortBy(s)}
+                                style={{
+                                    padding: '6px 12px',
+                                    background: sortBy === s ? T.accent : T.bgCard,
+                                    color: sortBy === s ? T.bg : T.text,
+                                    border: `1px solid ${sortBy === s ? T.accent : T.border}`,
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: T.bgCard }}>
+                                    {['Company', 'Fund', 'Exit Type', 'Timeline', 'Est. Value', 'Current Val', 'Multiple', 'Confidence'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '10px 12px',
+                                            textAlign: h === 'Company' || h === 'Fund' || h === 'Exit Type' ? 'left' : 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {sorted.map(company => (
+                                    <tr key={company.id} style={{
+                                        borderBottom: `1px solid ${T.border}40`,
+                                        cursor: 'pointer',
+                                        transition: 'background .1s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                            {company.name}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                            {company.fund}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textDim }}>
+                                            <span style={{
+                                                padding: '2px 8px',
+                                                background: company.exitType === 'IPO' ? `${T.blue}15` : `${T.purple}15`,
+                                                color: company.exitType === 'IPO' ? T.blue : T.purple,
+                                                borderRadius: 4,
+                                                fontSize: 10,
+                                                fontWeight: 700
+                                            }}>
+                                                {company.exitType}
+                                            </span>
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            textAlign: 'right',
+                                            color: company.exitTimeline < 12 ? T.green : T.textDim
+                                        }}>
+                                            {company.exitTimeline}mo
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            fontFamily: mono,
+                                            textAlign: 'right',
+                                            color: T.green,
+                                            fontWeight: 600
+                                        }}>
+                                            {formatCurrency(company.estimatedValue)}
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            fontFamily: mono,
+                                            textAlign: 'right',
+                                            color: T.textMuted
+                                        }}>
+                                            {formatCurrency(company.valuation)}
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            fontFamily: mono,
+                                            textAlign: 'right',
+                                            color: T.accent
+                                        }}>
+                                            {(company.estimatedValue / company.valuation).toFixed(1)}x
+                                        </td>
+                                        <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                            <span style={{
+                                                fontSize: 11,
+                                                fontFamily: mono,
+                                                color: company.confidence >= 80 ? T.green : company.confidence >= 60 ? T.amber : T.red,
+                                                fontWeight: 700
+                                            }}>
+                                                {company.confidence}%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 7: SIGNAL STRENGTH
+        // ════════════════════════════════════════════════════
+        function SignalStrengthView({ companies }) {
+            const [filter, setFilter] = useState('all');
+
+            const filtered = filter === 'all'
+                ? companies
+                : filter === 'high'
+                    ? companies.filter(c => c.signalScore >= 80)
+                    : filter === 'medium'
+                        ? companies.filter(c => c.signalScore >= 60 && c.signalScore < 80)
+                        : companies.filter(c => c.signalScore < 60);
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Signal Strength Indicators"
+                        subtitle="Real-time momentum scores across portfolio companies"
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: 16,
+                        marginBottom: 24
+                    }}>
+                        <StatCard
+                            label="High Signal"
+                            value={companies.filter(c => c.signalScore >= 80).length}
+                            sub="Score ≥ 80"
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Medium Signal"
+                            value={companies.filter(c => c.signalScore >= 60 && c.signalScore < 80).length}
+                            sub="Score 60-79"
+                            color={T.amber}
+                        />
+                        <StatCard
+                            label="Low Signal"
+                            value={companies.filter(c => c.signalScore < 60).length}
+                            sub="Score < 60"
+                            color={T.red}
+                        />
+                        <StatCard
+                            label="Avg Score"
+                            value={Math.round(companies.reduce((s, c) => s + c.signalScore, 0) / companies.length)}
+                            sub="Portfolio-wide"
+                            color={T.accent}
+                        />
+                    </div>
+
+                    <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+                        {['all', 'high', 'medium', 'low'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                style={{
+                                    padding: '6px 12px',
+                                    background: filter === f ? T.accent : T.bgCard,
+                                    color: filter === f ? T.bg : T.text,
+                                    border: `1px solid ${filter === f ? T.accent : T.border}`,
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase'
+                                }}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: T.bgCard }}>
+                                    {['Company', 'Sector', 'Stage', 'Fund', 'Revenue', 'Employees', 'Momentum', 'Signal'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '10px 12px',
+                                            textAlign: h === 'Company' || h === 'Sector' || h === 'Stage' || h === 'Fund' ? 'left' : 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered
+                                    .sort((a, b) => b.signalScore - a.signalScore)
+                                    .slice(0, 20)
+                                    .map(company => (
+                                        <tr key={company.id} style={{
+                                            borderBottom: `1px solid ${T.border}40`,
+                                            cursor: 'pointer',
+                                            transition: 'background .1s'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                            <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                                {company.name}
+                                            </td>
+                                            <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                                {company.sector}
+                                            </td>
+                                            <td style={{ padding: '9px 12px', fontSize: 11, color: T.textDim }}>
+                                                {company.stage}
+                                            </td>
+                                            <td style={{ padding: '9px 12px', fontSize: 11, color: T.textDim }}>
+                                                {company.fund}
+                                            </td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                fontFamily: mono,
+                                                textAlign: 'right',
+                                                color: T.textMuted
+                                            }}>
+                                                ${company.revenue}M
+                                            </td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                fontFamily: mono,
+                                                textAlign: 'right',
+                                                color: T.textMuted
+                                            }}>
+                                                {company.employees}
+                                            </td>
+                                            <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                                <span style={{
+                                                    fontSize: 16,
+                                                    color: company.momentum === 'up' ? T.green : company.momentum === 'flat' ? T.amber : T.red
+                                                }}>
+                                                    {company.momentum === 'up' ? '↗' : company.momentum === 'flat' ? '→' : '↘'}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '9px 12px', width: '150px' }}>
+                                                <SignalIndicator score={company.signalScore} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 8: MEETING PREP
+        // ════════════════════════════════════════════════════
+        function MeetingPrepView({ funds }) {
+            const [selectedFund, setSelectedFund] = useState(null);
+
+            function exportPDF(fund) {
+                const content = `
+MEETING BRIEF: ${fund.gp}
+Date: ${new Date().toLocaleDateString()}
+
+FUND OVERVIEW
+- Fund: ${fund.name}
+- Vintage: ${fund.vintage}
+- Strategy: ${fund.strategy}
+- Commitment: ${formatCurrency(fund.committed)}
+
+PERFORMANCE METRICS
+- TVPI: ${fund.tvpi.toFixed(2)}x
+- DPI: ${fund.dpi.toFixed(2)}x
+- IRR: ${fund.irr.toFixed(1)}%
+- Current NAV: ${formatCurrency(fund.nav)}
+
+LAST INTERACTION
+- Date: ${fund.lastContact}
+- Relationship Strength: ${Math.round(fund.relationshipStrength)}/100
+
+KEY DISCUSSION POINTS
+1. Portfolio performance review
+2. Co-investment opportunities
+3. Fund III timing and strategy
+4. LP network introductions
+
+OUTSTANDING QUESTIONS
+- Q3 portfolio company updates?
+- Follow-on reserve deployment timeline?
+- LP base composition for next fund?
+
+Generated by NEWCO Intelligence LP Platform
+                `.trim();
+
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `meeting-brief-${fund.gp.replace(/\s+/g, '-')}.txt`;
+                a.click();
+            }
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Meeting Prep Cards"
+                        subtitle="One-click briefing docs for GP meetings"
+                    />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                        <div>
+                            <div style={{
+                                background: T.bgCard,
+                                border: `1px solid ${T.border}`,
+                                borderRadius: 8,
+                                maxHeight: 600,
+                                overflow: 'auto'
+                            }}>
+                                {funds.slice(0, 15).map(fund => (
+                                    <div
+                                        key={fund.id}
+                                        onClick={() => setSelectedFund(fund)}
+                                        style={{
+                                            padding: 12,
+                                            borderBottom: `1px solid ${T.border}40`,
+                                            cursor: 'pointer',
+                                            background: selectedFund?.id === fund.id ? T.bgCardHover : 'transparent',
+                                            transition: 'background .1s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedFund?.id !== fund.id) {
+                                                e.currentTarget.style.background = T.bgCardHover;
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedFund?.id !== fund.id) {
+                                                e.currentTarget.style.background = 'transparent';
+                                            }
+                                        }}
+                                    >
+                                        <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 4 }}>
+                                            {fund.gp}
+                                        </div>
+                                        <div style={{ fontSize: 10, color: T.textMuted }}>
+                                            {fund.name} • Last contact: {fund.lastContact}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            {selectedFund ? (
+                                <div style={{
+                                    background: T.bgCard,
+                                    border: `1px solid ${T.accent}`,
+                                    borderRadius: 8,
+                                    padding: 20
+                                }}>
+                                    <div style={{ marginBottom: 20 }}>
+                                        <h2 style={{ fontSize: 18, fontWeight: 700, color: T.accent, marginBottom: 8 }}>
+                                            {selectedFund.gp}
+                                        </h2>
+                                        <p style={{ fontSize: 12, color: T.textMuted }}>
+                                            Meeting Brief • {new Date().toLocaleDateString()}
+                                        </p>
+                                    </div>
+
+                                    <div style={{ marginBottom: 20 }}>
+                                        <h3 style={{
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: T.textMuted,
+                                            textTransform: 'uppercase',
+                                            marginBottom: 12
+                                        }}>
+                                            Fund Overview
+                                        </h3>
+                                        <div style={{ fontSize: 12, color: T.text, lineHeight: 1.8 }}>
+                                            <div><strong>Fund:</strong> {selectedFund.name}</div>
+                                            <div><strong>Vintage:</strong> {selectedFund.vintage}</div>
+                                            <div><strong>Strategy:</strong> {selectedFund.strategy}</div>
+                                            <div><strong>Commitment:</strong> {formatCurrency(selectedFund.committed)}</div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: 20 }}>
+                                        <h3 style={{
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: T.textMuted,
+                                            textTransform: 'uppercase',
+                                            marginBottom: 12
+                                        }}>
+                                            Performance Metrics
+                                        </h3>
+                                        <div style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr 1fr',
+                                            gap: 12
+                                        }}>
+                                            <div>
+                                                <div style={{ fontSize: 20, fontWeight: 700, color: T.green, fontFamily: mono }}>
+                                                    {selectedFund.tvpi.toFixed(2)}x
+                                                </div>
+                                                <div style={{ fontSize: 10, color: T.textDim }}>TVPI</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 20, fontWeight: 700, color: T.blue, fontFamily: mono }}>
+                                                    {selectedFund.dpi.toFixed(2)}x
+                                                </div>
+                                                <div style={{ fontSize: 10, color: T.textDim }}>DPI</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 20, fontWeight: 700, color: T.accent, fontFamily: mono }}>
+                                                    {selectedFund.irr.toFixed(1)}%
+                                                </div>
+                                                <div style={{ fontSize: 10, color: T.textDim }}>IRR</div>
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: 20, fontWeight: 700, color: T.purple, fontFamily: mono }}>
+                                                    {formatCurrency(selectedFund.nav)}
+                                                </div>
+                                                <div style={{ fontSize: 10, color: T.textDim }}>NAV</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: 20 }}>
+                                        <h3 style={{
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: T.textMuted,
+                                            textTransform: 'uppercase',
+                                            marginBottom: 12
+                                        }}>
+                                            Last Interaction
+                                        </h3>
+                                        <div style={{ fontSize: 12, color: T.text, marginBottom: 8 }}>
+                                            Date: {selectedFund.lastContact}
+                                        </div>
+                                        <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 8 }}>
+                                            Relationship Strength:
+                                        </div>
+                                        <SignalIndicator score={Math.round(selectedFund.relationshipStrength)} />
+                                    </div>
+
+                                    <div style={{ marginBottom: 20 }}>
+                                        <h3 style={{
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            color: T.textMuted,
+                                            textTransform: 'uppercase',
+                                            marginBottom: 12
+                                        }}>
+                                            Key Discussion Points
+                                        </h3>
+                                        <ul style={{ fontSize: 12, color: T.text, lineHeight: 1.8, paddingLeft: 20 }}>
+                                            <li>Portfolio performance review</li>
+                                            <li>Co-investment opportunities</li>
+                                            <li>Fund III timing and strategy</li>
+                                            <li>LP network introductions</li>
+                                        </ul>
+                                    </div>
+
+                                    <button
+                                        onClick={() => exportPDF(selectedFund)}
+                                        style={{
+                                            width: '100%',
+                                            padding: 12,
+                                            background: T.accent,
+                                            color: T.bg,
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            fontSize: 12,
+                                            fontWeight: 700,
+                                            cursor: 'pointer',
+                                            textTransform: 'uppercase'
+                                        }}
+                                    >
+                                        Export Brief
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    background: T.bgCard,
+                                    border: `1px solid ${T.border}`,
+                                    borderRadius: 8,
+                                    padding: 40,
+                                    textAlign: 'center',
+                                    color: T.textDim
+                                }}>
+                                    Select a fund to generate meeting brief
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // VIEW 9: COMPETITIVE ANALYSIS
+        // ════════════════════════════════════════════════════
+        function CompetitiveAnalysisView({ funds }) {
+            const [lpOverlap] = useState(() => {
+                // Mock LP overlap data
+                const lps = ['Sequoia', 'Accel', 'Benchmark', 'Greylock', 'KPCB'];
+                return funds.slice(0, 15).map(f => ({
+                    fund: f.gp,
+                    lps: lps.filter(() => Math.random() > 0.5),
+                    overlap: Math.floor(Math.random() * 5),
+                    uniqueAccess: Math.random() > 0.7
+                }));
+            });
+
+            return (
+                <div>
+                    <SectionHeader
+                        title="Competitive Set Analysis"
+                        subtitle="LP overlap and differentiated access mapping"
+                    />
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: 16,
+                        marginBottom: 24
+                    }}>
+                        <StatCard
+                            label="Unique Positions"
+                            value={lpOverlap.filter(l => l.uniqueAccess).length}
+                            sub="No major LP overlap"
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Avg LP Overlap"
+                            value={Math.round(lpOverlap.reduce((s, l) => s + l.overlap, 0) / lpOverlap.length)}
+                            sub="Per fund"
+                            color={T.amber}
+                        />
+                        <StatCard
+                            label="Concentrated Funds"
+                            value={lpOverlap.filter(l => l.overlap >= 3).length}
+                            sub="High overlap (≥3)"
+                            color={T.red}
+                        />
+                        <StatCard
+                            label="Differentiated"
+                            value={`${Math.round((lpOverlap.filter(l => l.uniqueAccess).length / lpOverlap.length) * 100)}%`}
+                            sub="Portfolio"
+                            color={T.accent}
+                        />
+                    </div>
+
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ background: T.bgCard }}>
+                                    {['Fund', 'Known LPs', 'Overlap Count', 'Status'].map(h => (
+                                        <th key={h} style={{
+                                            padding: '10px 12px',
+                                            textAlign: h === 'Fund' || h === 'Known LPs' ? 'left' : 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {lpOverlap.map((item, idx) => (
+                                    <tr key={idx} style={{
+                                        borderBottom: `1px solid ${T.border}40`,
+                                        cursor: 'pointer',
+                                        transition: 'background .1s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, fontWeight: 600, color: T.text }}>
+                                            {item.fund}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', fontSize: 11, color: T.textMuted }}>
+                                            {item.lps.join(', ') || 'Unknown'}
+                                        </td>
+                                        <td style={{
+                                            padding: '9px 12px',
+                                            fontSize: 11,
+                                            fontFamily: mono,
+                                            textAlign: 'right',
+                                            color: item.overlap >= 3 ? T.red : item.overlap >= 2 ? T.amber : T.green
+                                        }}>
+                                            {item.overlap}
+                                        </td>
+                                        <td style={{ padding: '9px 12px', textAlign: 'right' }}>
+                                            <span style={{
+                                                fontSize: 10,
+                                                padding: '3px 8px',
+                                                background: item.uniqueAccess ? `${T.green}15` : `${T.amber}15`,
+                                                color: item.uniqueAccess ? T.green : T.amber,
+                                                borderRadius: 4,
+                                                fontWeight: 700,
+                                                textTransform: 'uppercase'
+                                            }}>
+                                                {item.uniqueAccess ? 'Unique' : 'Shared'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // MAIN APP WITH NAVIGATION
+        // ════════════════════════════════════════════════════
+        function App() {
+            const [loading, setLoading] = useState(true);
+            const [data, setData] = useState({ funds: [], companies: [] });
+            const [activeView, setActiveView] = useState('dashboard');
+
+            useEffect(() => {
+                async function loadData() {
+                    const [fundsRaw, companiesRaw] = await Promise.all([
+                        fetchData('/portfolio/funds'),
+                        fetchData('/portfolio-companies')
+                    ]);
+
+                    if (fundsRaw && companiesRaw) {
+                        setData({
+                            funds: transformFunds(fundsRaw),
+                            companies: transformPortfolioCompanies(companiesRaw)
+                        });
+                    }
+                    setLoading(false);
+                }
+                loadData();
+            }, []);
+
+            if (loading) {
+                return <div className="loading">Loading NEWCO Intelligence Platform...</div>;
+            }
+
+            const views = [
+                { id: 'dashboard', name: 'Dashboard', icon: '📊' },
+                { id: 'network', name: 'Network', icon: '🕸️' },
+                { id: 'dealflow', name: 'Deal Flow', icon: '💼' },
+                { id: 'performance', name: 'Performance', icon: '📈' },
+                { id: 'capital', name: 'Capital', icon: '💰' },
+                { id: 'exits', name: 'Exit Watch', icon: '🚀' },
+                { id: 'signals', name: 'Signals', icon: '📡' },
+                { id: 'meetings', name: 'Meeting Prep', icon: '📋' },
+                { id: 'competitive', name: 'Competitive', icon: '🎯' }
+            ];
+
+            return (
+                <div style={{ background: T.bg, minHeight: '100vh' }}>
+                    {/* Header */}
+                    <div style={{
+                        background: T.bgCard,
+                        borderBottom: `1px solid ${T.border}`,
+                        padding: '16px 32px',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 100
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div>
+                                <h1 style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: T.accent,
+                                    fontFamily: mono
+                                }}>NEWCO V10</h1>
+                                <p style={{ fontSize: 11, color: T.textMuted, marginTop: 2 }}>
+                                    Intelligence LP Platform
+                                </p>
+                            </div>
+                            <div style={{
+                                padding: '6px 12px',
+                                background: `${T.green}15`,
+                                border: `1px solid ${T.green}30`,
+                                borderRadius: 6,
+                                fontSize: 10,
+                                color: T.green,
+                                fontWeight: 700,
+                                textTransform: 'uppercase'
+                            }}>
+                                ● Live Data
+                            </div>
+                        </div>
+
+                        {/* Navigation */}
+                        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+                            {views.map(view => (
+                                <button
+                                    key={view.id}
+                                    onClick={() => setActiveView(view.id)}
+                                    style={{
+                                        padding: '8px 16px',
+                                        background: activeView === view.id ? T.accent : T.bgCard,
+                                        color: activeView === view.id ? T.bg : T.text,
+                                        border: `1px solid ${activeView === view.id ? T.accent : T.border}`,
+                                        borderRadius: 6,
+                                        fontSize: 11,
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        whiteSpace: 'nowrap',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {view.icon} {view.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: 32 }}>
+                        {activeView === 'dashboard' && <DashboardView funds={data.funds} companies={data.companies} />}
+                        {activeView === 'network' && <NetworkIntelligenceView funds={data.funds} />}
+                        {activeView === 'dealflow' && <DealFlowView />}
+                        {activeView === 'performance' && <ManagerPerformanceView funds={data.funds} />}
+                        {activeView === 'capital' && <CapitalEfficiencyView funds={data.funds} />}
+                        {activeView === 'exits' && <ExitWatchView companies={data.companies} />}
+                        {activeView === 'signals' && <SignalStrengthView companies={data.companies} />}
+                        {activeView === 'meetings' && <MeetingPrepView funds={data.funds} />}
+                        {activeView === 'competitive' && <CompetitiveAnalysisView funds={data.funds} />}
+                    </div>
+                </div>
+            );
+        }
+
+        // Render
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

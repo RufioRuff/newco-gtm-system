@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+.pnp.*
+package-lock.json
+
+# Data files (optional - uncomment if you don't want to track data)
+# data/*.csv
+# reports/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.venv
+*.key
+*.pem
+credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Exports (these can be regenerated)
+reports/exports/
+reports/emails/
+
+# Temporary files
+*.tmp
+*.bak
+
+# External/cloned repositories (third-party code)
+agents/karpathy-agent/
+agents/llm-council/
+archive/newco-unified-platform/
+external-projects/ml-frameworks/arrow/
+external-projects/ml-frameworks/tvm/
+external-projects/ml-frameworks/xgboost/
+learning/karpathy-repos/llm.c/
+learning/karpathy-repos/micrograd/
+learning/karpathy-repos/minGPT/
+learning/karpathy-repos/minbpe/
+learning/karpathy-repos/nanoGPT/
+learning/notebooks/deep-learning-with-python-notebooks/
+learning/projects/build-your-own-x/
+learning/projects/learning-projects/

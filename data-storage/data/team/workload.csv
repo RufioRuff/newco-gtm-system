@@ -1,0 +1,8 @@
+workload_id,member_id,task_type,related_id,description,assigned_date,due_date,status,hours_estimated,hours_actual,notes
+WL00001,TM002,Due Diligence,M003,Kindred Ventures Fund III - Deep DD,2026-02-13,2026-02-27,Assigned,80,0,
+WL00002,TM002,IC Memo,M003,Draft IC memo for Kindred Ventures,2026-02-13,2026-03-06,Assigned,20,0,
+WL00003,TM003,Reference Checks,M008,LP reference calls for Underscore VC,2026-02-13,2026-02-20,Assigned,10,0,
+WL00004,TM003,Portfolio Review,,Review Q4 portfolio company updates,2026-02-13,2026-02-23,Assigned,15,0,
+WL00005,TM004,Market Research,,Climate tech sector analysis,2026-02-13,2026-03-15,Assigned,25,0,
+WL00006,TM004,Manager Sourcing,,Identify 10 new seed-stage managers,2026-02-13,2026-03-05,Assigned,20,0,
+WL00007,TM001,Market Analysis,,Review Q1 2026 emerging manager landscape,2026-02-13,2026-03-01,Assigned,15.0,0,

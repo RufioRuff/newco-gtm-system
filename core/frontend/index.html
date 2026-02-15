@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWCO Platform</title>
+
+    <!-- React & ReactDOM from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel Standalone for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- D3.js for visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Lucide React Icons (as module) -->
+    <script type="module">
+        import * as LucideIcons from 'https://cdn.skypack.dev/lucide-react@0.263.1';
+        window.LucideIcons = LucideIcons;
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', 'Inter', -apple-system, sans-serif;
+            background: #06090f;
+            color: #e4eaf4;
+            overflow-x: hidden;
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 18px;
+            color: #00e4b8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">Loading NEWCO Platform...</div>
+    </div>
+
+    <!-- Load the React component -->
+    <script type="text/babel" data-type="module">
+        // Import icons
+        const Icons = window.LucideIcons || {};
+
+        // API base URL
+        const API_BASE = 'http://localhost:5001/api';
+
+        // Fetch data from backend
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // Main App Component
+        function App() {
+            const [loading, setLoading] = React.useState(true);
+            const [data, setData] = React.useState({
+                portfolio: null,
+                funds: null,
+                managers: null,
+                ticker: null,
+                team: null,
+                icCommittee: null,
+                coinvest: null
+            });
+
+            React.useEffect(() => {
+                async function loadData() {
+                    const [portfolio, funds, managers, ticker, team, icCommittee, coinvest] = await Promise.all([
+                        fetchData('/portfolio/summary'),
+                        fetchData('/portfolio/funds'),
+                        fetchData('/managers'),
+                        fetchData('/public/ticker'),
+                        fetchData('/team/members'),
+                        fetchData('/governance/ic-committee'),
+                        fetchData('/governance/coinvest-pipeline')
+                    ]);
+
+                    setData({
+                        portfolio,
+                        funds,
+                        managers,
+                        ticker,
+                        team,
+                        icCommittee,
+                        coinvest
+                    });
+
+                    setLoading(false);
+                }
+
+                loadData();
+            }, []);
+
+            if (loading) {
+                return (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100vh',
+                        flexDirection: 'column',
+                        gap: '20px'
+                    }}>
+                        <div style={{ fontSize: 24, fontWeight: 700, color: '#00e4b8' }}>
+                            Loading NEWCO Platform...
+                        </div>
+                        <div style={{ fontSize: 14, color: '#7b8da4' }}>
+                            Connecting to backend API...
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+                    <header style={{ marginBottom: '40px' }}>
+                        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#00e4b8', marginBottom: '10px' }}>
+                            NEWCO Platform
+                        </h1>
+                        <p style={{ fontSize: 16, color: '#7b8da4' }}>
+                            Public Venture Infrastructure Platform — Real-time data from Python CLI
+                        </p>
+                    </header>
+
+                    {/* Portfolio Summary */}
+                    {data.portfolio && (
+                        <section style={{ marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: 24, marginBottom: '20px', color: '#e4eaf4' }}>
+                                Portfolio Summary
+                            </h2>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '16px'
+                            }}>
+                                <StatCard
+                                    label="Total Funds"
+                                    value={data.portfolio.total_funds || 0}
+                                    color="#00e4b8"
+                                />
+                                <StatCard
+                                    label="Total Committed"
+                                    value={`$${(data.portfolio.total_committed/1000000).toFixed(1)}M`}
+                                    color="#3b82f6"
+                                />
+                                <StatCard
+                                    label="Total Called"
+                                    value={`$${(data.portfolio.total_called/1000000).toFixed(1)}M`}
+                                    color="#f59e0b"
+                                />
+                                <StatCard
+                                    label="Portfolio NAV"
+                                    value={`$${(data.portfolio.total_nav/1000000).toFixed(1)}M`}
+                                    color="#22c55e"
+                                />
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Funds */}
+                    {data.funds && data.funds.length > 0 && (
+                        <section style={{ marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: 24, marginBottom: '20px', color: '#e4eaf4' }}>
+                                Active Funds ({data.funds.length})
+                            </h2>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{
+                                    width: '100%',
+                                    borderCollapse: 'collapse',
+                                    background: '#0c1018',
+                                    borderRadius: '8px'
+                                }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '1px solid #1a2438' }}>
+                                            <th style={{ padding: '12px', textAlign: 'left', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>Fund</th>
+                                            <th style={{ padding: '12px', textAlign: 'left', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>GP</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>Vintage</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>Committed</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>Called</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>NAV</th>
+                                            <th style={{ padding: '12px', textAlign: 'right', color: '#7b8da4', fontSize: 11, textTransform: 'uppercase' }}>TVPI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.funds.map((fund, i) => (
+                                            <tr key={i} style={{ borderBottom: i < data.funds.length - 1 ? '1px solid #1a2438' : 'none' }}>
+                                                <td style={{ padding: '12px', fontWeight: 600 }}>{fund.fund_name}</td>
+                                                <td style={{ padding: '12px', color: '#7b8da4' }}>{fund.gp_name}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace' }}>{fund.vintage}</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace' }}>${(fund.commitment_amount/1000000).toFixed(1)}M</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace', color: '#f59e0b' }}>${(fund.total_called/1000000).toFixed(1)}M</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace', color: '#22c55e' }}>${(fund.current_nav/1000000).toFixed(1)}M</td>
+                                                <td style={{ padding: '12px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, color: '#00e4b8' }}>{fund.tvpi}x</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Ticker Status */}
+                    {data.ticker && (
+                        <section style={{ marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: 24, marginBottom: '20px', color: '#e4eaf4' }}>
+                                Public Market Status
+                            </h2>
+                            <div style={{
+                                background: '#0c1018',
+                                border: '1px solid #1a2438',
+                                borderRadius: '8px',
+                                padding: '20px'
+                            }}>
+                                <div style={{ fontSize: 14, color: '#7b8da4', marginBottom: '8px' }}>
+                                    NEWCO — Last Trade: {data.ticker.date}
+                                </div>
+                                <div style={{ fontSize: 48, fontWeight: 800, color: '#00e4b8', fontFamily: 'monospace' }}>
+                                    ${data.ticker.price.toFixed(2)}
+                                </div>
+                                <div style={{ display: 'flex', gap: '20px', marginTop: '12px' }}>
+                                    <div>
+                                        <div style={{ fontSize: 11, color: '#7b8da4', marginBottom: '4px' }}>NAV</div>
+                                        <div style={{ fontSize: 18, fontWeight: 600, fontFamily: 'monospace' }}>
+                                            ${data.ticker.nav.toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: 11, color: '#7b8da4', marginBottom: '4px' }}>Premium/Discount</div>
+                                        <div style={{ fontSize: 18, fontWeight: 600, fontFamily: 'monospace', color: data.ticker.premium_discount > 0 ? '#22c55e' : '#ef4444' }}>
+                                            {data.ticker.premium_discount > 0 ? '+' : ''}{data.ticker.premium_discount.toFixed(2)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Co-Invest Pipeline */}
+                    {data.coinvest && data.coinvest.length > 0 && (
+                        <section style={{ marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: 24, marginBottom: '20px', color: '#e4eaf4' }}>
+                                Co-Invest Pipeline ({data.coinvest.length} Active)
+                            </h2>
+                            <div style={{ display: 'grid', gap: '12px' }}>
+                                {data.coinvest.filter(c => c.status === 'Active').slice(0, 5).map((co, i) => (
+                                    <div key={i} style={{
+                                        background: '#0c1018',
+                                        border: '1px solid #1a2438',
+                                        borderRadius: '8px',
+                                        padding: '16px',
+                                        borderLeft: `3px solid ${getTierColor(co.tier)}`
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                                            <div>
+                                                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: '4px' }}>
+                                                    {co.company_name}
+                                                </div>
+                                                <div style={{ fontSize: 12, color: '#7b8da4' }}>
+                                                    {co.manager_id} • {co.tier}
+                                                </div>
+                                            </div>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: 18, fontWeight: 700, fontFamily: 'monospace', color: '#00e4b8' }}>
+                                                    ${(co.allocation_amount/1000000).toFixed(1)}M
+                                                </div>
+                                                <div style={{ fontSize: 12, color: '#7b8da4' }}>
+                                                    {co.nav_percentage}% NAV
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {co.rationale && (
+                                            <div style={{ fontSize: 12, color: '#7b8da4', marginTop: '8px' }}>
+                                                {co.rationale}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Team */}
+                    {data.team && data.team.length > 0 && (
+                        <section style={{ marginBottom: '40px' }}>
+                            <h2 style={{ fontSize: 24, marginBottom: '20px', color: '#e4eaf4' }}>
+                                Team ({data.team.length} Members)
+                            </h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                                {data.team.map((member, i) => (
+                                    <div key={i} style={{
+                                        background: '#0c1018',
+                                        border: '1px solid #1a2438',
+                                        borderRadius: '8px',
+                                        padding: '16px'
+                                    }}>
+                                        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: '4px' }}>
+                                            {member.name}
+                                        </div>
+                                        <div style={{ fontSize: 13, color: '#7b8da4', marginBottom: '2px' }}>
+                                            {member.title}
+                                        </div>
+                                        <div style={{ fontSize: 11, color: '#4a5d74' }}>
+                                            {member.role}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    <footer style={{ marginTop: '60px', padding: '20px', textAlign: 'center', color: '#4a5d74', fontSize: 12 }}>
+                        <div>NEWCO Platform — Powered by Python CLI + Flask API + React</div>
+                        <div style={{ marginTop: '8px' }}>
+                            API: <a href="http://localhost:5001/api/health" style={{ color: '#00e4b8' }}>http://localhost:5001/api/health</a>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // StatCard Component
+        function StatCard({ label, value, color }) {
+            return (
+                <div style={{
+                    background: '#0c1018',
+                    border: `1px solid #1a2438`,
+                    borderRadius: '8px',
+                    padding: '16px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '2px',
+                        background: `linear-gradient(90deg, ${color}80, transparent)`
+                    }} />
+                    <div style={{
+                        fontSize: 10,
+                        color: '#7b8da4',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.8px',
+                        marginBottom: '8px',
+                        fontWeight: 700
+                    }}>
+                        {label}
+                    </div>
+                    <div style={{
+                        fontSize: 28,
+                        fontWeight: 800,
+                        color,
+                        fontFamily: 'monospace',
+                        letterSpacing: '-1px'
+                    }}>
+                        {value}
+                    </div>
+                </div>
+            );
+        }
+
+        // Helper function for tier colors
+        function getTierColor(tier) {
+            switch(tier) {
+                case 'Conviction': return '#00e4b8';
+                case 'Confirmed': return '#3b82f6';
+                case 'Base': return '#f59e0b';
+                case 'Signal Density': return '#a78bfa';
+                case 'Watchlist': return '#7b8da4';
+                default: return '#1a2438';
+            }
+        }
+
+        // Render app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

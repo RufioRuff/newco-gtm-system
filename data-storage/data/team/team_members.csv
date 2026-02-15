@@ -1,0 +1,5 @@
+member_id,name,title,role,hire_date,email,status,notes
+TM001,Ken Wallace,CEO,Leadership,2023-01-01,ken@newco.com,Active,
+TM002,Sarah Chen,Senior Analyst,Analyst,2023-06-01,sarah@newco.com,Active,
+TM003,Marcus Rodriguez,Analyst,Analyst,2024-01-15,marcus@newco.com,Active,
+TM004,Emily Park,Associate,Analyst,2024-09-01,emily@newco.com,Active,

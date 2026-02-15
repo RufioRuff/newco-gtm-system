@@ -1,0 +1,63 @@
+# Contact Persona Definitions
+
+personas:
+  platform_gatekeeper:
+    name: "Platform Gatekeeper"
+    tier: 1
+    description: "Institutional access platforms and investment consultants"
+    key_hook: "Educational meeting on emerging manager trends and fee transparency"
+    value_prop: "Platform insights, manager selection expertise"
+    typical_titles:
+      - "Managing Director"
+      - "Partner"
+      - "Head of Manager Selection"
+
+  family_office_cio:
+    name: "Family Office CIO"
+    tier: 2
+    description: "Chief Investment Officers at family offices"
+    key_hook: "Liquid VC access vehicle with 1.25% fee structure"
+    value_prop: "Emerging manager alpha, diversified VC exposure, transparent fees"
+    typical_titles:
+      - "CIO"
+      - "Chief Investment Officer"
+      - "Head of Investments"
+
+  vc_partner:
+    name: "VC Partner"
+    tier: 3
+    description: "VC partners who can provide LP introductions"
+    key_hook: "LP introduction request + co-investment opportunity"
+    value_prop: "Deal flow sharing, co-investment, Omniscient platform value-add"
+    typical_titles:
+      - "Partner"
+      - "General Partner"
+      - "Managing Partner"
+
+  foundation_leader:
+    name: "Foundation Leader"
+    tier: 3
+    description: "Foundation investment leaders"
+    key_hook: "Mission-aligned investment vehicle with Berkeley ecosystem focus"
+    value_prop: "Emerging manager diversity, impact alignment, institutional access"
+    typical_titles:
+      - "President"
+      - "CIO"
+      - "Investment Director"
+
+  network_multiplier:
+    name: "Network Multiplier"
+    tier: 0
+    description: "Top 3 strategic connectors with outsized network leverage"
+    key_hook: "Highly personalized based on specific opportunity"
+    value_prop: "Strategic partnership, mutual value creation, network leverage"
+    typical_titles:
+      - "Founder"
+      - "CEO"
+      - "Managing Partner"
+
+prioritization_rules:
+  tier_weight: 40
+  recency_weight: 30
+  responsiveness_weight: 20
+  strategic_value_weight: 10

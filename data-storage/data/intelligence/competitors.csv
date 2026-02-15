@@ -1,0 +1,8 @@
+competitor_id,name,type,structure,aum,nav_per_share,premium_discount,management_fee,incentive_fee,ticker,website,strategy,geography,focus,notes
+COMP001,Hercules Capital (HTGC),BDC - Venture Debt,Publicly Traded,3500000000,,,2.0,20.0,HTGC,,Venture debt and growth-stage lending,US,,
+COMP002,TriplePoint Venture Growth (TPVG),BDC - Venture Debt,Publicly Traded,1800000000,,,2.0,20.0,TPVG,,Venture growth-stage debt financing,US,,
+COMP003,Altimar Acquisition Corp,SPAC,Publicly Traded,500000000,,,0,20.0,ATCX,,Growth equity via SPAC,US,,
+COMP004,Neuberger Berman Next Gen Tech,Interval Fund,Listed Fund,250000000,,,1.85,15.0,,,Growth-stage technology investments,US,,
+COMP005,Hamilton Lane Private Assets Fund,Fund-of-Funds,Private Fund,5000000000,,,1.5,10.0,,,Diversified VC fund-of-funds,US,,
+COMP006,Vintage Investment Partners,Fund-of-Funds,Private Fund,2000000000,,,1.25,10.0,,,VC and growth fund-of-funds,US,,
+COMP007,Industry Ventures,Fund-of-Funds + Secondaries,Private Fund,3000000000,,,1.5,15.0,,,VC secondaries and fund-of-funds,US,,

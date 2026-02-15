@@ -1,0 +1,4 @@
+meeting_id,meeting_date,meeting_type,attendees,agenda,decisions_made,notes
+ICM0001,2026-01-15,Regular,"TM001,TM002,TM003","Manager pipeline review, Kindred Ventures deep DD results",2,
+ICM0002,2026-01-29,Regular,"TM001,TM002,TM003","Underscore VC approval, Co-invest opportunity review",3,
+ICM0003,2026-02-12,Regular,"TM001,TM002","Q1 portfolio review, New manager sourcing",1,

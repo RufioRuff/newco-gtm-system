@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEWCO Alpha Engine - Standalone</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- D3.js for visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script type="module">
+        import * as LucideIcons from 'https://cdn.skypack.dev/lucide-react@0.263.1';
+        window.LucideIcons = LucideIcons;
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', 'Inter', -apple-system, sans-serif;
+            background: #06090f;
+            color: #e4eaf4;
+            overflow-x: hidden;
+        }
+        #root { width: 100%; min-height: 100vh; }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 18px;
+            color: #00e4b8;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="loading">Loading NEWCO Alpha Engine...</div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const API_BASE = 'http://localhost:5001/api';
+
+        // ════════════════════════════════════════════════════
+        // DATA ADAPTER: Flask API → AlphaEngine Format
+        // ════════════════════════════════════════════════════
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error('Failed to fetch');
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                return null;
+            }
+        }
+
+        // Transform your 85 funds to AlphaEngine format
+        function transformFunds(funds) {
+            return funds.map((fund, idx) => ({
+                id: idx + 1,
+                name: fund.fund_name,
+                gp: fund.gp_name,
+                vintage: parseInt(fund.vintage),
+                strategy: fund.sector,
+                status: fund.status,
+                committed: parseFloat(fund.commitment_amount) / 1000000, // Convert to millions
+                called: parseFloat(fund.total_called) / 1000000,
+                nav: parseFloat(fund.current_nav) / 1000000,
+                tvpi: parseFloat(fund.tvpi) || 0,
+                irr: Math.random() * 20 + 10, // Placeholder - would come from real data
+                dpi: parseFloat(fund.dpi) || 0,
+                tier: fund.fund_type === 'Private Equity' ? 'Core' : 'Strategic',
+                sector: fund.sector,
+                companies: Math.floor(Math.random() * 20) + 5 // Placeholder
+            }));
+        }
+
+        // Transform your 62 portfolio companies to AlphaEngine format
+        function transformPortfolioCompanies(companies) {
+            return companies.map((company, idx) => ({
+                id: idx + 1,
+                name: company.company_name,
+                sector: company.sector,
+                stage: company.stage,
+                valuation: parseFloat(company.valuation_estimate) / 1000000 || 0,
+                ownership: Math.random() * 0.15, // Placeholder
+                fund: company.fund_name,
+                vintage: parseInt(company.investment_date) || 2023,
+                status: company.status === 'Active' ? 'markup' : 'exited',
+                growth: Math.floor(Math.random() * 200) + 50,
+                revenue: Math.floor(Math.random() * 1000) + 50,
+                employees: Math.floor(Math.random() * 2000) + 100,
+                moat: company.description || 'Proprietary technology',
+                exitPath: company.exit_type ? `${company.exit_type} ${company.exit_date}` : 'IPO 2027',
+                signalScore: Math.floor(Math.random() * 30) + 70
+            }));
+        }
+
+        // ════════════════════════════════════════════════════
+        // SIMPLIFIED ALPHA ENGINE UI
+        // ════════════════════════════════════════════════════
+
+        const T = {
+            bg: '#06090f', bgCard: '#0c1018', bgCardHover: '#131b28',
+            border: '#1a2438', borderLight: '#253348',
+            text: '#e4eaf4', textMuted: '#7b8da4', textDim: '#4a5d74',
+            accent: '#00e4b8', green: '#22c55e', blue: '#3b82f6',
+            amber: '#f59e0b', red: '#ef4444', purple: '#a78bfa'
+        };
+
+        const mono = "'JetBrains Mono', 'SF Mono', monospace";
+        const sans = "'DM Sans', 'Inter', -apple-system, sans-serif";
+
+        function formatCurrency(value) {
+            if (!value) return '$0';
+            if (value >= 1000) return `$${(value / 1000).toFixed(1)}B`;
+            return `$${value.toFixed(1)}M`;
+        }
+
+        // Stat Card Component
+        function StatCard({ label, value, sub, color = T.accent }) {
+            return (
+                <div style={{
+                    background: T.bgCard,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 8,
+                    padding: '14px 16px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 2,
+                        background: `linear-gradient(90deg, ${color}, transparent)`
+                    }}/>
+                    <div style={{
+                        fontSize: 9,
+                        color: T.textMuted,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.8px',
+                        marginBottom: 5,
+                        fontWeight: 700
+                    }}>{label}</div>
+                    <div style={{
+                        fontSize: 24,
+                        fontWeight: 800,
+                        color,
+                        fontFamily: mono,
+                        letterSpacing: '-1px'
+                    }}>{value}</div>
+                    {sub && <div style={{ fontSize: 10, color: T.textDim, marginTop: 4 }}>{sub}</div>}
+                </div>
+            );
+        }
+
+        // Dashboard View
+        function DashboardView({ funds, companies }) {
+            const totalCommitment = funds.reduce((sum, f) => sum + f.committed, 0);
+            const totalCalled = funds.reduce((sum, f) => sum + f.called, 0);
+            const totalNAV = funds.reduce((sum, f) => sum + f.nav, 0);
+            const avgTVPI = funds.reduce((sum, f) => sum + f.tvpi, 0) / funds.length;
+
+            const activeFunds = funds.filter(f => f.status === 'Active').length;
+            const activeCompanies = companies.filter(c => c.status === 'markup').length;
+            const exitedCompanies = companies.filter(c => c.status === 'exited').length;
+
+            return (
+                <div style={{ padding: 32 }}>
+                    <div style={{ marginBottom: 24 }}>
+                        <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 8 }}>
+                            Intelligence LP Dashboard
+                        </h1>
+                        <p style={{ color: T.textMuted, fontSize: 14 }}>
+                            Real-time portfolio intelligence across {funds.length} funds and {companies.length} portfolio companies
+                        </p>
+                    </div>
+
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                        gap: 20,
+                        marginBottom: 32
+                    }}>
+                        <StatCard
+                            label="Total Commitments"
+                            value={formatCurrency(totalCommitment)}
+                            sub={`${funds.length} funds`}
+                            color={T.accent}
+                        />
+                        <StatCard
+                            label="Called Capital"
+                            value={formatCurrency(totalCalled)}
+                            sub={`${((totalCalled / totalCommitment) * 100).toFixed(1)}% deployed`}
+                            color={T.blue}
+                        />
+                        <StatCard
+                            label="Current NAV"
+                            value={formatCurrency(totalNAV)}
+                            sub={`${avgTVPI.toFixed(2)}x avg TVPI`}
+                            color={T.green}
+                        />
+                        <StatCard
+                            label="Portfolio Reach"
+                            value={companies.length}
+                            sub={`${activeCompanies} active, ${exitedCompanies} exited`}
+                            color={T.purple}
+                        />
+                    </div>
+
+                    {/* Investment Thesis */}
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 12,
+                        padding: 24,
+                        marginBottom: 24,
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 3,
+                            background: `linear-gradient(90deg, ${T.accent}, ${T.purple}, ${T.blue})`
+                        }}/>
+
+                        <h2 style={{
+                            fontSize: 18,
+                            fontWeight: 700,
+                            marginBottom: 16,
+                            color: T.accent,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontSize: 12
+                        }}>
+                            Intelligence LP Investment Thesis
+                        </h2>
+
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            gap: 24,
+                            marginBottom: 20
+                        }}>
+                            {/* Core Strategy */}
+                            <div>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 10
+                                }}>
+                                    <div style={{
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: '50%',
+                                        background: T.accent
+                                    }}/>
+                                    <h3 style={{
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        color: T.text
+                                    }}>Core Strategy</h3>
+                                </div>
+                                <p style={{
+                                    fontSize: 13,
+                                    color: T.textMuted,
+                                    lineHeight: 1.6
+                                }}>
+                                    Multi-vintage, multi-strategy portfolio targeting top-tier venture capital and private equity funds with demonstrated alpha generation. Focus on emerging managers with institutional backing.
+                                </p>
+                            </div>
+
+                            {/* Target Sectors */}
+                            <div>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 10
+                                }}>
+                                    <div style={{
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: '50%',
+                                        background: T.blue
+                                    }}/>
+                                    <h3 style={{
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        color: T.text
+                                    }}>Target Sectors</h3>
+                                </div>
+                                <p style={{
+                                    fontSize: 13,
+                                    color: T.textMuted,
+                                    lineHeight: 1.6
+                                }}>
+                                    AI/ML, cybersecurity, fintech, enterprise software, and climate tech. Emphasis on B2B SaaS with proven unit economics and companies with defensible moats and network effects.
+                                </p>
+                            </div>
+
+                            {/* Portfolio Construction */}
+                            <div>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: 10
+                                }}>
+                                    <div style={{
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: '50%',
+                                        background: T.purple
+                                    }}/>
+                                    <h3 style={{
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        color: T.text
+                                    }}>Portfolio Construction</h3>
+                                </div>
+                                <p style={{
+                                    fontSize: 13,
+                                    color: T.textMuted,
+                                    lineHeight: 1.6
+                                }}>
+                                    Diversified across {funds.length} funds spanning vintages 2006-2025. Target allocation: 60% venture capital, 40% private equity. Emphasis on 2022+ vintages for optimal J-curve positioning.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Key Metrics */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: 16,
+                            padding: 16,
+                            background: `${T.bgAccent}60`,
+                            borderRadius: 8,
+                            border: `1px solid ${T.border}`
+                        }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: T.accent,
+                                    fontFamily: mono,
+                                    marginBottom: 4
+                                }}>
+                                    {avgTVPI.toFixed(2)}x
+                                </div>
+                                <div style={{
+                                    fontSize: 11,
+                                    color: T.textDim,
+                                    textTransform: 'uppercase'
+                                }}>
+                                    Portfolio TVPI
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: T.green,
+                                    fontFamily: mono,
+                                    marginBottom: 4
+                                }}>
+                                    {activeFunds}
+                                </div>
+                                <div style={{
+                                    fontSize: 11,
+                                    color: T.textDim,
+                                    textTransform: 'uppercase'
+                                }}>
+                                    Active Funds
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: T.blue,
+                                    fontFamily: mono,
+                                    marginBottom: 4
+                                }}>
+                                    {companies.length}
+                                </div>
+                                <div style={{
+                                    fontSize: 11,
+                                    color: T.textDim,
+                                    textTransform: 'uppercase'
+                                }}>
+                                    Portfolio Cos
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{
+                                    fontSize: 24,
+                                    fontWeight: 700,
+                                    color: T.purple,
+                                    fontFamily: mono,
+                                    marginBottom: 4
+                                }}>
+                                    {((totalCalled / totalCommitment) * 100).toFixed(0)}%
+                                </div>
+                                <div style={{
+                                    fontSize: 11,
+                                    color: T.textDim,
+                                    textTransform: 'uppercase'
+                                }}>
+                                    Capital Deployed
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Investment Philosophy */}
+                        <div style={{ marginTop: 20 }}>
+                            <p style={{
+                                fontSize: 12,
+                                color: T.textDim,
+                                lineHeight: 1.7,
+                                fontStyle: 'italic',
+                                borderLeft: `2px solid ${T.accent}`,
+                                paddingLeft: 12
+                            }}>
+                                "We are not blind LP capital. We are an Intelligence LP." — Our approach combines institutional-grade fund selection with proprietary data feeds and real-time portfolio intelligence to generate alpha through superior GP selection and portfolio construction.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Fund Performance Table */}
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        marginBottom: 24
+                    }}>
+                        <div style={{
+                            padding: '12px 16px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: `${T.accent}08`
+                        }}>
+                            <span style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: T.text,
+                                textTransform: 'uppercase'
+                            }}>Top Performing Funds</span>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ background: `${T.bgCard}` }}>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Fund</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>GP</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>TVPI</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>DPI</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'right',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>NAV</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Sector</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {funds
+                                        .sort((a, b) => b.tvpi - a.tvpi)
+                                        .slice(0, 10)
+                                        .map(fund => (
+                                            <tr
+                                                key={fund.id}
+                                                style={{
+                                                    borderBottom: `1px solid ${T.border}40`,
+                                                    transition: 'background .1s'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                            >
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    fontWeight: 600,
+                                                    color: T.text
+                                                }}>{fund.name}</td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    color: T.textMuted
+                                                }}>{fund.gp}</td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono,
+                                                    color: fund.tvpi > 1.5 ? T.green : T.text,
+                                                    fontWeight: 600
+                                                }}>{fund.tvpi.toFixed(2)}x</td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono,
+                                                    color: T.textMuted
+                                                }}>{fund.dpi.toFixed(2)}x</td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    textAlign: 'right',
+                                                    fontFamily: mono
+                                                }}>{formatCurrency(fund.nav)}</td>
+                                                <td style={{
+                                                    padding: '9px 12px',
+                                                    fontSize: 11,
+                                                    color: T.textDim
+                                                }}>{fund.sector}</td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Portfolio Companies */}
+                    <div style={{
+                        background: T.bgCard,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 8,
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            padding: '12px 16px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: `${T.purple}08`
+                        }}>
+                            <span style={{
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: T.text,
+                                textTransform: 'uppercase'
+                            }}>Portfolio Companies</span>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ background: `${T.bgCard}` }}>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Company</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Sector</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Stage</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Fund</th>
+                                        <th style={{
+                                            padding: '10px 12px',
+                                            textAlign: 'left',
+                                            color: T.textMuted,
+                                            fontWeight: 700,
+                                            fontSize: 10,
+                                            textTransform: 'uppercase',
+                                            borderBottom: `2px solid ${T.border}`
+                                        }}>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {companies.slice(0, 15).map(company => (
+                                        <tr
+                                            key={company.id}
+                                            style={{
+                                                borderBottom: `1px solid ${T.border}40`,
+                                                transition: 'background .1s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = T.bgCardHover}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                        >
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                fontWeight: 600,
+                                                color: T.text
+                                            }}>{company.name}</td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                color: T.textMuted
+                                            }}>{company.sector}</td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                color: T.textDim
+                                            }}>{company.stage}</td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11,
+                                                color: T.textDim
+                                            }}>{company.fund}</td>
+                                            <td style={{
+                                                padding: '9px 12px',
+                                                fontSize: 11
+                                            }}>
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    padding: '2px 8px',
+                                                    borderRadius: 4,
+                                                    fontSize: 10,
+                                                    fontWeight: 700,
+                                                    color: company.status === 'markup' ? T.green : T.blue,
+                                                    background: company.status === 'markup' ? `${T.green}12` : `${T.blue}12`,
+                                                    border: `1px solid ${company.status === 'markup' ? T.green : T.blue}20`,
+                                                    textTransform: 'uppercase'
+                                                }}>
+                                                    {company.status === 'markup' ? 'Active' : 'Exited'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App
+        function App() {
+            const [loading, setLoading] = useState(true);
+            const [data, setData] = useState({
+                funds: [],
+                companies: []
+            });
+
+            useEffect(() => {
+                async function loadData() {
+                    const [fundsRaw, companiesRaw] = await Promise.all([
+                        fetchData('/portfolio/funds'),
+                        fetchData('/portfolio-companies')
+                    ]);
+
+                    if (fundsRaw && companiesRaw) {
+                        setData({
+                            funds: transformFunds(fundsRaw),
+                            companies: transformPortfolioCompanies(companiesRaw)
+                        });
+                    }
+                    setLoading(false);
+                }
+                loadData();
+            }, []);
+
+            if (loading) {
+                return <div className="loading">Loading NEWCO Alpha Engine...</div>;
+            }
+
+            return (
+                <div style={{ background: T.bg, minHeight: '100vh' }}>
+                    <div style={{
+                        background: T.bgCard,
+                        borderBottom: `1px solid ${T.border}`,
+                        padding: '16px 32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div>
+                            <h1 style={{
+                                fontSize: 24,
+                                fontWeight: 700,
+                                color: T.accent,
+                                fontFamily: mono
+                            }}>NEWCO V10</h1>
+                            <p style={{ fontSize: 11, color: T.textMuted, marginTop: 2 }}>
+                                Intelligence LP Platform
+                            </p>
+                        </div>
+                        <div style={{
+                            padding: '6px 12px',
+                            background: `${T.green}15`,
+                            border: `1px solid ${T.green}30`,
+                            borderRadius: 6,
+                            fontSize: 10,
+                            color: T.green,
+                            fontWeight: 700,
+                            textTransform: 'uppercase'
+                        }}>
+                            ● Live Data
+                        </div>
+                    </div>
+
+                    <DashboardView funds={data.funds} companies={data.companies} />
+                </div>
+            );
+        }
+
+        // Render
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

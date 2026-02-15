@@ -1,0 +1,6 @@
+import { createValidatorDirective } from '@redwoodjs/graphql-server'
+export const schema = gql`
+  directive @skipAuth on FIELD_DEFINITION
+`
+const skipAuth = createValidatorDirective(schema, () => {})
+export default skipAuth

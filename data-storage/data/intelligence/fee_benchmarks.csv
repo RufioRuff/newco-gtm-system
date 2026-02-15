@@ -1,0 +1,6 @@
+vehicle_type,name,management_fee_rate,management_fee_basis,carry_rate,hurdle_rate,catch_up,gp_commitment,fund_size,notes
+Publicly Traded BDC,Hercules Capital,2.00,Total Assets,20.0,7.0,Yes,,3500000000,Industry standard for BDCs
+Private Fund-of-Funds,Hamilton Lane,1.50,Committed Capital,10.0,8.0,Yes,2.0,1000000000,Large established FoF
+Private Fund-of-Funds,Vintage Investment Partners,1.25,Committed Capital,10.0,8.0,Yes,1.0,500000000,Mid-size FoF
+Publicly Traded FoF,NEWCO (Our Structure),1.25,Committed Capital,0,0,No,5.0,50000000,No incentive fee - fee transparency
+Interval Fund,Neuberger Berman,1.85,NAV,15.0,5.0,Yes,,250000000,Semi-liquid structure

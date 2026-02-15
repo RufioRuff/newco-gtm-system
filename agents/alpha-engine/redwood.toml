@@ -1,0 +1,22 @@
+# NEWCO V10 — RedwoodJS Configuration
+[web]
+  title = "NEWCO V10 — Intelligence LP Platform"
+  port = 8910
+  apiUrl = "/.redwood/functions"
+  includeEnvironmentVariables = [
+    "SUPABASE_URL",
+    "SUPABASE_ANON_KEY"
+  ]
+
+[api]
+  port = 8911
+
+[browser]
+  open = true
+
+[generate]
+  tests = true
+  stories = true
+
+[notifications]
+  versionUpdates = ["latest"]

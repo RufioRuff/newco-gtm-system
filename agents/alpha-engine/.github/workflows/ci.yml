@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn rw lint
+      - run: yarn rw type-check
+
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn rw test --no-watch
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn rw build
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
